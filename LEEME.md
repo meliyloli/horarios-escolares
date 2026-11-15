@@ -11,12 +11,23 @@ La primera vez muestra un colegio de ejemplo. Cuando quieras empezar con el tuyo
 ## El orden para armar el horario
 
 1. **Colegio.** Nombre, ciclo de 5 o 10 días, cómo se usan las aulas y las reglas (entre ellas, las clases en bloque de 2 horas). El botón «Guardar colegio» confirma que quedó guardado.
-2. **Áreas e intensidad.** Las áreas, sus afines y las horas por semana en cada grado. Un área se puede marcar como **media técnica** (un área llamada «Media técnica» ya lo es sin marcarla). Es una jornada extra para los estudiantes: sus clases van en la otra jornada del grupo (en la tarde si el grupo es de la mañana) sin tocar la mañana, no tienen máximo de horas por día de la materia ni del docente, no cuentan en los de las demás materias, y sus horas no cuentan en el máximo de 30 horas por semana del grupo (se muestran aparte, «+6 MT»). Cada docente de media técnica atiende un solo grupo por día y, si caben, todas las horas de un grupo van el mismo día. En **Horario**, «Organizar la media técnica» vuelve a ubicar solo la media técnica sin mover nada más. Se pueden llenar subiendo un Word o PDF (ver abajo).
+2. **Áreas e intensidad.** Las áreas del plan de estudios, sus afines y las horas por semana en cada grado. Se pueden llenar subiendo un Word o PDF (ver abajo). La media técnica no va aquí: tiene su propio apartado.
 3. **Grupos, docentes y aulas.** Lo que tiene el colegio. En cada docente: sus horas extra (si tiene) y el apartado «Disponibilidad» para decir desde qué franja entra, hasta cuál se queda, qué días no viene o franjas sueltas. Un docente puede tener jornada «Mañana y tarde (horario intermedio)»: dicta a grupos de las dos jornadas, incluso el mismo día (la franja 1 de la mañana y la de la tarde son horas distintas), y su disponibilidad tiene una cuadrícula para cada jornada. En la **asignación** de un docente de horario intermedio, cada materia con su grupo se marca **en la mañana** o **en la tarde**: las de la tarde van en las franjas de la tarde aunque el grupo sea de la mañana (contrajornada), y ese grupo se ve entonces con una tabla de la mañana y otra de la tarde.
-4. **Asignación académica.** Qué horas dicta cada docente a cada grupo. «Por docente» muestra su carga, permite agregarle materias o grupos en la última fila y cambiarle el nombre («Cambiar nombre»). «Por grupo» muestra cada materia del grupo con sus docentes, si está completa, si le faltan o le sobran horas, y permite asignar ahí lo que falta. La app avisa cuando dos docentes comparten una materia en un grupo (y si sus horas suman la intensidad) y cuando un grupo pasa de 30 horas por semana en bachillerato o de 25 en primaria. También se puede importar de un Word o PDF.
-5. **Horario.** «Generar horario». Luego puedes mover clases, fijarlas, imprimir, descargar el PDF y exportar a Excel.
-6. **Acompañamiento.** Las zonas que se cuidan en los descansos y quién las acompaña cada día (ver abajo).
-7. **Incapacidades.** El día que alguien falta: registrar la ausencia, elegir reemplazos o reorganizar el día. Si esa persona acompañaba una zona en un descanso, la app lo avisa y sugiere quién puede cubrirla.
+4. **Media técnica** (solo si el colegio la tiene; ver abajo).
+5. **Asignación académica.** Qué horas dicta cada docente a cada grupo. «Por docente» muestra su carga, permite agregarle materias o grupos en la última fila y cambiarle el nombre («Cambiar nombre»). «Por grupo» muestra cada materia del grupo con sus docentes, si está completa, si le faltan o le sobran horas, y permite asignar ahí lo que falta. La app avisa cuando dos docentes comparten una materia en un grupo (y si sus horas suman la intensidad) y cuando un grupo pasa de 30 horas por semana en bachillerato o de 25 en primaria. También se puede importar de un Word o PDF.
+6. **Horario.** «Generar horario». Luego puedes mover clases, fijarlas, imprimir, descargar el PDF y exportar a Excel.
+7. **Acompañamiento.** Las zonas que se cuidan en los descansos y quién las acompaña cada día (ver abajo).
+8. **Incapacidades.** El día que alguien falta: registrar la ausencia, elegir reemplazos o reorganizar el día. Si esa persona acompañaba una zona en un descanso, la app lo avisa y sugiere quién puede cubrirla.
+
+## Media técnica
+
+Es opcional: en **Colegio → Media técnica** se dice si el colegio la tiene. Si la tiene, aparece «Media técnica» en el menú. Sus programas (Sistemas, Contabilidad, Agropecuaria…) van **por fuera del plan de estudios**: se dictan en la jornada contraria (en la tarde si el grupo es de la mañana) sin tocar su jornada, no cuentan en las 30 horas por semana y no tienen máximo de horas por día.
+
+1. **Programas:** el nombre y las horas por semana en 10.° y 11.°.
+2. **Qué grupos la ven:** un grupo completo puede ver un programa. Si los estudiantes de varios grupos eligen programas distintos, se arman **grupos mezclados** (por ejemplo, «11.° Sistemas» con estudiantes de 11-1 y 11-2), cada uno con su jornada y su aula y con su propio horario.
+3. **Quién la dicta:** un **docente de planta** (esas horas cuentan en su carga de 22; si es de la otra jornada, pasa a «mañana y tarde») o un **instructor externo** (SENA u otra entidad), que no tiene carga ni acompaña descansos ni aparece como reemplazo. Sus días se marcan en su ficha de «Grupos, docentes y aulas».
+
+Cada docente de media técnica atiende un solo grupo por día y, si caben, todas las horas de un grupo van el mismo día. En **Horario**, «Organizar la media técnica» la vuelve a ubicar sin mover nada más.
 
 ## Acompañamiento en descansos
 
@@ -54,6 +65,7 @@ Antes de importar muestra lo que entendió, qué columna es cada cosa (se puede 
 ## Tus datos
 
 - Se guardan solos en Chrome, en este computador. Si borras los datos de navegación de Chrome, se pierden.
+- Si pasan más de 7 días sin respaldo, el menú lo avisa en amarillo.
 - Por eso, usa **«Guardar respaldo»** (abajo a la izquierda) cada vez que termines de trabajar. Crea un archivo `Respaldo <colegio> AAAA-MM-DD.json` en Descargas con el colegio abierto y todas sus versiones. Si tienes varios colegios, abre cada uno y guarda su respaldo. Guárdalos en una carpeta segura o en tu correo.
 - **«Abrir respaldo»** carga uno de esos archivos. Si es del colegio abierto, lo reemplaza; si es de otro colegio, el abierto queda guardado en «Otros colegios».
 - Para pasar el trabajo a otro computador: copia `Horarios.html` y el último respaldo, y ábrelo allá.

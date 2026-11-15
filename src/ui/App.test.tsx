@@ -311,11 +311,21 @@ describe('la app abierta en otra pestaña', () => {
 })
 
 describe('media técnica', () => {
-  it('se marca en Áreas e intensidad y su intensidad sale aparte del total que cuenta', () => {
+  it('se activa en Colegio, tiene su propio apartado y no aparece entre las áreas del plan de estudios', () => {
     render(<App inicial={colegioEjemplo()} />)
+    expect(screen.queryByRole('button', { name: 'Media técnica' })).toBeNull()
+    abrir('Colegio')
+    fireEvent.click(screen.getByRole('radio', { name: /Sí tiene media técnica/ }))
+    abrir('Media técnica')
+    fireEvent.click(screen.getByRole('button', { name: 'Agregar programa' }))
+    fireEvent.change(screen.getByLabelText('Nombre del programa'), { target: { value: 'Sistemas' } })
+    fireEvent.change(screen.getByLabelText('Programa de 10-1'), { target: { value: within(screen.getByLabelText('Programa de 10-1')).getByRole('option', { name: 'Sistemas' }).getAttribute('value') } })
+    const quien = screen.getByLabelText('Quién dicta Sistemas a 10-1') as HTMLSelectElement
+    fireEvent.change(quien, { target: { value: quien.options[1].value } })
+    expect(quien.value).not.toBe('')
     abrir('Áreas')
-    fireEvent.change(screen.getByLabelText('Horas de Tecnología e Informática en grado 10'), { target: { value: '8' } })
-    fireEvent.click(screen.getByRole('checkbox', { name: 'Tecnología e Informática es media técnica' }))
-    expect(screen.getByText('+8 MT')).toBeTruthy()
+    expect(screen.queryByDisplayValue('Sistemas')).toBeNull()
+    abrir('Grupos')
+    expect(screen.getByText('+6 MT')).toBeTruthy()
   })
 })

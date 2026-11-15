@@ -1,5 +1,7 @@
 import { avisosAulas } from '../../dominio/cruces'
 import { cambiarCicloColegio } from '../../dominio/edicion'
+import { programasMT, quitarMediaTecnica } from '../../dominio/mediaTecnica'
+import { tieneMediaTecnica } from '../../dominio/tiempo'
 import { estadoVacio } from '../../dominio/ejemplo'
 import type { Ciclo, ModeloAula, Reglas } from '../../dominio/tipos'
 import { aNumero, Aviso, Campo, Icono } from '../componentes'
@@ -88,6 +90,31 @@ export function Colegio() {
       </section>
 
       <section className="panel">
+        <h3>Media técnica</h3>
+        <p className="suave">Es opcional. Sus programas van aparte del plan de estudios, en la jornada contraria, y no cuentan en las 30 horas por semana.</p>
+        <div className="opciones">
+          <label className="opcion">
+            <input
+              type="radio" name="media-tecnica" checked={!tieneMediaTecnica(estado)}
+              onChange={() =>
+                programasMT(estado).length === 0
+                  ? colegioCon({ mediaTecnica: false })
+                  : confirmar({
+                      titulo: '¿Quitar la media técnica?', mensaje: 'Se borran sus programas, sus grupos mezclados, lo asignado y sus clases. Se puede deshacer.',
+                      boton: 'Sí, quitarla', peligro: true, accion: () => cambiar((e) => quitarMediaTecnica(e)),
+                    })
+              }
+            />
+            <span><b>No tiene media técnica</b>Todos los grupos ven solo el plan de estudios.</span>
+          </label>
+          <label className="opcion">
+            <input type="radio" name="media-tecnica" checked={tieneMediaTecnica(estado)} onChange={() => colegioCon({ mediaTecnica: true })} />
+            <span><b>Sí tiene media técnica</b>Aparece «Media técnica» en el menú para armar programas, grupos e instructores.</span>
+          </label>
+        </div>
+      </section>
+
+      <section className="panel">
         <h3>Reglas del horario</h3>
         <p className="suave">Activa las que apliquen en tu colegio. El generador las cumple todas y la app avisa si un cambio a mano rompe alguna.</p>
 
@@ -170,7 +197,7 @@ export function Colegio() {
         <fieldset className="pila" style={{ border: 0, padding: 0, margin: '0 0 0 30px', gap: 8 }} disabled={!bloques.activa && !reglas.bloquesDeDos?.activa}>
           <legend className="suave" style={{ marginBottom: 6 }}>Materias que nunca van en bloque: quedan en horas sueltas, sin dos horas pegadas el mismo día (franjas 1-2, 3-4 o 5-6).</legend>
           <div className="fila" style={{ gap: '6px 16px' }}>
-            {estado.areas.map((a) => (
+            {estado.areas.filter((a) => !programasMT(estado).includes(a)).map((a) => (
               <label key={a.id} className="marca" style={{ margin: 0 }}>
                 <input
                   type="checkbox" checked={!!bloques.sinBloque?.includes(a.id)}

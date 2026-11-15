@@ -95,7 +95,7 @@ export const eliminarDocente = (e: Estado, id: Id): Estado =>
 export const eliminarGrupo = (e: Estado, id: Id): Estado =>
   sincronizarClases({
     ...e,
-    grupos: e.grupos.filter((g) => g.id !== id),
+    grupos: e.grupos.filter((g) => g.id !== id).map((g) => (g.de?.includes(id) ? { ...g, de: g.de.filter((x) => x !== id) } : g)),
     asignaciones: e.asignaciones.filter((a) => a.grupoId !== id),
     docentes: e.docentes.map((d) => (d.direccionGrupoId === id ? { ...d, direccionGrupoId: undefined } : d)),
     ajustes: e.ajustes.map((aj) => ({ ...aj, gruposAusentes: aj.gruposAusentes.filter((g) => g !== id) })),
@@ -109,7 +109,9 @@ export const eliminarArea = (e: Estado, id: Id): Estado =>
     intensidad: Object.fromEntries(
       Object.entries(e.intensidad).map(([grado, horas]) => [grado, Object.fromEntries(Object.entries(horas).filter(([areaId]) => areaId !== id))]),
     ),
-    asignaciones: e.asignaciones.filter((a) => a.areaId !== id),
+    // Si era un programa de media técnica, sus grupos mezclados se van y los grupos completos dejan de verlo.
+    grupos: e.grupos.filter((g) => !(g.de && g.programaMT === id)).map((g) => (g.programaMT === id ? { ...g, programaMT: undefined } : g)),
+    asignaciones: e.asignaciones.filter((a) => a.areaId !== id && !e.grupos.some((g) => g.id === a.grupoId && g.de && g.programaMT === id)),
     docentes: e.docentes.map((d) => (d.areaId === id ? { ...d, areaId: '' } : d)),
   })
 

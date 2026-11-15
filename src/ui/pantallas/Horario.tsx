@@ -342,11 +342,6 @@ export function Horario({ alIr, fecha, alCambiarFecha, grupoInicial }: { alIr: (
                       {opciones[vista].map((o) => <option key={o.id} value={o.id}>{o.nombre}</option>)}
                     </select>
                   )}
-                  <label className="fila empuja" style={{ fontWeight: 600 }}>
-                    Ver un día con sus incapacidades
-                    <input type="date" value={fecha} onChange={(ev) => alCambiarFecha(ev.target.value)} />
-                  </label>
-                  {fecha && <button className="boton chico" onClick={() => alCambiarFecha('')}>Volver al horario base</button>}
                 </div>
                 {fecha && (ajuste
                   ? <Aviso tipo="info">Estás viendo el <b>{fechaLarga(fecha)}</b> con sus reemplazos y cambios. El horario base no cambia. Para mover clases, vuelve al horario base.</Aviso>
@@ -384,6 +379,12 @@ export function Horario({ alIr, fecha, alCambiarFecha, grupoInicial }: { alIr: (
                     <hr style={{ width: '100%', border: 0, borderTop: '1.5px solid var(--linea)' }} />
                   </>
                 )}
+                {/* Al lado y no encima de la cuadrícula: en un portátil cada línea de arriba le quita una franja a la vista. */}
+                <label className="campo">
+                  Ver un día con sus incapacidades
+                  <input type="date" value={fecha} onChange={(ev) => alCambiarFecha(ev.target.value)} />
+                </label>
+                {fecha && <button className="boton chico" onClick={() => alCambiarFecha('')}>Volver al horario base</button>}
                 {estado.colegio.modeloAula === 'libre' && !soloLectura && (
                   <button className="boton chico" title="Da un aula libre a las clases que no tienen o cuya aula quedó ocupada" onClick={() => cambiar((e) => repartirAulas(e))}>
                     Repartir aulas libres

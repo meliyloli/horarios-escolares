@@ -28,6 +28,8 @@ export interface Colegio {
   ciclo: Ciclo
   modeloAula: ModeloAula
   reglas: Reglas
+  /** El colegio tiene media técnica (es opcional). Si falta, la tiene si ya hay algún programa. */
+  mediaTecnica?: boolean
 }
 
 export interface Area {
@@ -37,8 +39,9 @@ export interface Area {
   nombre: string
   afines: Id[]
   /**
-   * Media técnica: jornada extra en la otra jornada del grupo, sin máximos diarios y fuera del máximo de horas por semana
-   * (30 en bachillerato). Sin marcar, lo es un área llamada «Media técnica…».
+   * Programa de media técnica (Sistemas, Contabilidad…): no es del plan de estudios. Es una jornada extra en la jornada
+   * contraria, sin máximos diarios y fuera del máximo de horas por semana (30 en bachillerato). Sin marcar, lo es un área
+   * llamada «Media técnica…». Sus horas por grado van en la intensidad.
    */
   mediaTecnica?: boolean
 }
@@ -50,6 +53,12 @@ export interface Grupo {
   jornada: Jornada
   ciclo?: Ciclo
   aulaId?: Id
+  /** Nombre propio (grupos mezclados de media técnica, como «10.° Sistemas»); si falta, «grado-número». */
+  nombre?: string
+  /** Programa de media técnica que ve este grupo completo, o el de un grupo mezclado. */
+  programaMT?: Id
+  /** Grupo mezclado de media técnica: estudiantes de estos grupos que eligieron el mismo programa. Solo ve ese programa, en su propia jornada. */
+  de?: Id[]
 }
 
 export interface Docente {
@@ -68,6 +77,8 @@ export interface Docente {
   noDisponible: string[]
   /** Aula fija, para los modelos de aula por docente y mixto. */
   aulaId?: Id
+  /** Instructor externo (SENA u otra entidad): dicta media técnica, no es de planta, no tiene carga de 22 horas ni acompaña descansos. */
+  externo?: boolean
 }
 
 export interface Aula {

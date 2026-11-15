@@ -22,8 +22,12 @@ const esAfin = (e: Estado, d: Docente, areaId: Id): boolean =>
   e.areas.find((a) => a.id === d.areaId)?.afines.includes(areaId) ?? false
 
 /** Horas del área que el grupo debe recibir en su ciclo. */
-export const horasRequeridas = (e: Estado, g: Grupo, areaId: Id): number =>
-  ((e.intensidad[g.grado]?.[areaId] ?? 0) * cicloDeGrupo(e, g)) / 5
+export const horasRequeridas = (e: Estado, g: Grupo, areaId: Id): number => {
+  // Un programa de media técnica solo lo pide el grupo que lo ve (completo o mezclado), o el que ya lo tiene asignado.
+  const loVe = g.programaMT === areaId || e.asignaciones.some((a) => a.grupoId === g.id && a.areaId === areaId)
+  if ((g.de || esMediaTecnica(e, areaId)) && !(esMediaTecnica(e, areaId) && loVe)) return 0
+  return ((e.intensidad[g.grado]?.[areaId] ?? 0) * cicloDeGrupo(e, g)) / 5
+}
 
 /** Horas del docente contadas sobre los días del horario completo. */
 export const horasDocente = (e: Estado, docenteId: Id) => {
@@ -61,7 +65,8 @@ export const validarAsignacion = (e: Estado): Aviso[] => {
   const pendientes = horasSinAsignar(e)
   const grupo = (id: Id) => e.grupos.find((g) => g.id === id)
 
-  for (const d of e.docentes) {
+  // Los instructores externos no son de planta: sin carga de 22 horas, ni área de nombramiento, ni nivel.
+  for (const d of e.docentes.filter((x) => !x.externo)) {
     const h = horasDocente(e, d.id)
     const carga = cargaEnCiclo(d, dias)
     const propias = e.asignaciones.filter((a) => a.docenteId === d.id)
@@ -80,7 +85,8 @@ export const validarAsignacion = (e: Estado): Aviso[] => {
           mensaje: `${d.nombre} tiene ${h.enArea} horas en ${nombreArea(e, d.areaId)}; el mínimo es ${minimo}.`,
         })
       for (const areaId of new Set(propias.map((a) => a.areaId)))
-        if (areaId !== d.areaId && !esAfin(e, d, areaId))
+        // La media técnica la puede dictar cualquier docente de planta: no es un área del plan de estudios.
+        if (areaId !== d.areaId && !esAfin(e, d, areaId) && !esMediaTecnica(e, areaId))
           avisos.push({
             tipo: 'areaNoAfin', gravedad: 'error', docenteId: d.id, areaId,
             mensaje: `${d.nombre} dicta ${nombreArea(e, areaId)}, que no es su área ni un área afín.`,

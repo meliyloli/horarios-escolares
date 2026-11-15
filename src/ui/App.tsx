@@ -4,7 +4,7 @@ import { cargarColegios, guardarColegios } from '../datos/colegios'
 import { CONFIG_FIREBASE } from '../datos/firebase'
 import { nubeFirestore, type Nube } from '../datos/nube'
 import { descargar } from '../datos/excel'
-import { nuevoId } from '../dominio/tiempo'
+import { nuevoId, tieneMediaTecnica } from '../dominio/tiempo'
 import { detectarCruces } from '../dominio/cruces'
 import { nombreHorario } from '../dominio/borradores'
 import { colegioEjemplo, estadoVacio } from '../dominio/ejemplo'
@@ -23,20 +23,27 @@ import { Datos } from './pantallas/Datos'
 import { Horario } from './pantallas/Horario'
 import { Acompanamiento } from './pantallas/Acompanamiento'
 import { Incapacidades } from './pantallas/Incapacidades'
+import { MediaTecnica } from './pantallas/MediaTecnica'
 import { Versiones } from './pantallas/Versiones'
 
-export type Pantalla = 'versiones' | 'acompanamiento' | 'colegio' | 'areas' | 'datos' | 'asignacion' | 'horario' | 'incapacidades'
+export type Pantalla = 'versiones' | 'acompanamiento' | 'mediatecnica' | 'colegio' | 'areas' | 'datos' | 'asignacion' | 'horario' | 'incapacidades'
 
+// En el orden del trabajo: preparar los datos, armar el horario, el día a día y, al final, los colegios y versiones.
 const PANTALLAS: [Pantalla, string, NombreIcono][] = [
-  ['versiones', 'Colegios y versiones', 'versiones'],
   ['colegio', 'Colegio', 'colegio'],
   ['areas', 'Áreas e intensidad', 'areas'],
   ['datos', 'Grupos, docentes y aulas', 'grupos'],
   ['asignacion', 'Asignación académica', 'asignacion'],
+  ['mediatecnica', 'Media técnica', 'tecnica'],
   ['horario', 'Horario', 'horario'],
   ['acompanamiento', 'Acompañamiento', 'zonas'],
   ['incapacidades', 'Incapacidades', 'incapacidades'],
+  ['versiones', 'Colegios y versiones', 'versiones'],
 ]
+/** Antes de estas pantallas va una línea que separa las etapas del trabajo. */
+const EMPIEZA_ETAPA = new Set<Pantalla>(['horario', 'acompanamiento', 'versiones'])
+/** Días desde el último respaldo (Infinity si nunca se guardó). */
+const diasSinRespaldo = (fecha?: string) => (fecha ? Math.floor((Date.now() - new Date(`${fecha}T12:00`).getTime()) / 86400000) : Infinity)
 
 const NOMBRE_EJEMPLO = colegioEjemplo().colegio.nombre
 const pantallaDeHash = (): Pantalla => PANTALLAS.find(([id]) => `#${id}` === location.hash)?.[0] ?? 'colegio'
@@ -135,8 +142,8 @@ function Marco({ exigirCodigo }: { exigirCodigo: boolean }) {
           {enLinea.enlace && <span className={`en-linea ${enLinea.estadoNube}`}>{TEXTO_ESTADO[enLinea.estadoNube]}</span>}
         </p>
         <nav aria-label="Pantallas">
-          {PANTALLAS.map(([id, nombre, icono]) => (
-            <button key={id} aria-current={pantalla === id ? 'page' : undefined} onClick={() => ir(id)}>
+          {PANTALLAS.filter(([id]) => id !== 'mediatecnica' || tieneMediaTecnica(estado) || pantalla === id).map(([id, nombre, icono]) => (
+            <button key={id} className={EMPIEZA_ETAPA.has(id) ? 'etapa' : undefined} aria-current={pantalla === id ? 'page' : undefined} onClick={() => ir(id)}>
               <Icono nombre={icono} />
               {nombre}
               {id === 'horario' && cruces > 0 && <span className="marca" title={`${cruces} cruces pendientes`}>{cruces}</span>}
@@ -145,9 +152,14 @@ function Marco({ exigirCodigo }: { exigirCodigo: boolean }) {
         </nav>
         <div className="pie">
           <p>{guardado ? 'Los cambios se guardan solos en este navegador.' : 'Este navegador no deja guardar. Guarda un respaldo antes de cerrar.'}</p>
-          <p>{estado.ultimoRespaldo ? `Último respaldo: ${estado.ultimoRespaldo}` : 'Aún no has guardado un respaldo.'}</p>
+          {diasSinRespaldo(estado.ultimoRespaldo) > 7 ? (
+            // Los datos viven en el navegador: sin respaldo reciente, un borrado de Chrome lo pierde todo.
+            <p className="recordatorio"><Icono nombre="alerta" tamano={16} />{estado.ultimoRespaldo ? `Último respaldo hace ${diasSinRespaldo(estado.ultimoRespaldo)} días` : 'Aún no has guardado un respaldo'}</p>
+          ) : (
+            <p>Último respaldo: {estado.ultimoRespaldo}</p>
+          )}
           <button className="boton chico" onClick={deshacer} disabled={!puedeDeshacer}><Icono nombre="deshacer" tamano={18} />Deshacer último cambio</button>
-          <button className="boton chico" onClick={guardarRespaldo}><Icono nombre="bajar" tamano={18} />Guardar respaldo</button>
+          <button className={`boton chico ${diasSinRespaldo(estado.ultimoRespaldo) > 7 ? 'resaltado' : ''}`} onClick={guardarRespaldo}><Icono nombre="bajar" tamano={18} />Guardar respaldo</button>
           <button className="boton chico" onClick={() => archivo.current?.click()}><Icono nombre="subir" tamano={18} />Abrir respaldo</button>
           <input
             ref={archivo} type="file" accept=".json,application/json" hidden
@@ -199,6 +211,7 @@ function Marco({ exigirCodigo }: { exigirCodigo: boolean }) {
         {pantalla === 'colegio' && <Colegio />}
         {pantalla === 'acompanamiento' && <Acompanamiento alIr={ir} />}
         {pantalla === 'areas' && <Areas />}
+        {pantalla === 'mediatecnica' && <MediaTecnica alIr={ir} />}
         {pantalla === 'datos' && <Datos />}
         {pantalla === 'asignacion' && <Asignacion />}
         {pantalla === 'horario' && <Horario alIr={ir} fecha={fecha} alCambiarFecha={setFecha} grupoInicial={grupoInicial} />}

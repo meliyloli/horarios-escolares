@@ -67,6 +67,11 @@ describe('reemplazos', () => {
       { docenteId: 'z', motivo: 'grupo', horasCubiertas: 0 },
     ])
   })
+  it('un instructor externo de media técnica no aparece como reemplazo', () => {
+    const e = colegio()
+    e.docentes.find((d) => d.id === 'x')!.externo = true
+    expect(idsCandidatos(e, ausencia('d', [1, 3, 5]), 'da5')).toEqual(['z'])
+  })
   it('entre docentes de la misma área prefiere al que menos horas ha cubierto', () => {
     const e = colegio()
     e.docentes.push(doc('v'))

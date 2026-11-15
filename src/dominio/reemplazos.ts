@@ -101,7 +101,7 @@ export const candidatosReemplazo = (e: Estado, ajuste: AjusteDia, claseId: Id): 
 
   return e.docentes
     .filter((d) => {
-      if (d.id === clase.docenteOriginalId || !dictaEn(d, clase.jornada)) return false
+      if (d.externo || d.id === clase.docenteOriginalId || !dictaEn(d, clase.jornada)) return false
       if (ausente(aj, d.id, clase.franja) || d.noDisponible.includes(claveDocente(d, aj.diaCiclo, clase.franja, clase.jornada))) return false
       // Las franjas ocupadas se cuentan en la jornada de la clase (la franja 1 de la tarde no es la de la mañana).
       const ocupadas = new Set(dictadas(delDia).filter((s) => s.docenteId === d.id && s.jornada === clase.jornada).map((s) => s.franja))

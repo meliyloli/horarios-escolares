@@ -192,8 +192,9 @@ const generarUnaVez = (e: Estado, opciones: OpcionesGenerar): ResultadoGenerar =
   // Hora libre diaria y carga pareja: cuántas clases puede tener cada docente cada día del horario.
   const disponibles = e.docentes.map((d) => franjasDisponibles(d, dias))
   const pareja = !!reglas.cargaPareja?.activa
-  const topes = e.docentes.map((_, d) => {
-    if (!reglas.libreDiaria?.activa && !pareja) return null
+  const topes = e.docentes.map((doc, d) => {
+    // Los instructores externos de media técnica no tienen reglas de carga ni de horas libres.
+    if (doc.externo || (!reglas.libreDiaria?.activa && !pareja)) return null
     const caps = disponibles[d]
     const horas = unidades.reduce((n, u) => n + (u.docente === d ? u.largo * (u.ciclo < dias ? 2 : 1) : 0), 0)
     const vaDias = caps.filter((c) => c > 0).length
@@ -287,7 +288,7 @@ const generarUnaVez = (e: Estado, opciones: OpcionesGenerar): ResultadoGenerar =
         hacerLugar(delDia, celdas.length, tope.maximo[inicio / FRANJAS], tope.causa)
       }
 
-      if (reglas.horaLibre.activa) {
+      if (reglas.horaLibre.activa && !e.docentes[u.docente].externo) {
         const dia = inicio / FRANJAS + 1
         const lleno = FRANJAS * (ambas[u.docente] ? 2 : 1)
         const clasesEn = (d: number) => (d === dia ? celdas.length : 0) + ocupadasDia(u.docente, d - 1, (j) => j === i || fuera.has(j)).length

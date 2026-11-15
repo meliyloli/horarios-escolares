@@ -116,6 +116,7 @@ export function Incapacidades({ alIr, alVerDia, borrador, alCambiarBorrador }: P
               </div>
             )}
             <button className="boton primario" disabled={!docenteId || !diaCiclo} onClick={registrar}>Registrar ausencia</button>
+            {!docenteId && diaCiclo && <p className="suave">Elige el docente ausente para poder registrarla.</p>}
           </section>
 
           <section className="panel">

@@ -68,6 +68,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .riel nav button:hover { background: #21397a; color: #fff; }
 .riel nav button[aria-current='page'] { background: var(--riel-activo); color: var(--tinta); }
 .riel nav button:focus-visible { outline-color: #fff; }
+/* Etapas del trabajo: preparar, horario, día a día, colegios y versiones. */
+.riel nav button.etapa { margin-top: 13px; position: relative; }
+.riel nav button.etapa::before { content: ''; position: absolute; left: 12px; right: 12px; top: -9px; border-top: 1px solid #2f4a8c; }
+.riel .pie .recordatorio { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: var(--radio-chico); background: var(--aviso-fondo); color: var(--aviso); font-weight: 700; }
+.riel .boton.resaltado { border-color: var(--riel-activo); color: #fff; }
 .riel nav .marca { margin-left: auto; min-width: 26px; padding: 0 7px; border-radius: 99px; background: var(--peligro-fondo); color: var(--peligro); font-size: 0.875rem; font-weight: 800; text-align: center; }
 .riel .pie { margin-top: auto; padding-top: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 0.875rem; color: var(--riel-suave); }
 .riel .pie p { padding: 0 6px; }
@@ -236,7 +241,7 @@ button.celda { padding: 0; text-align: left; background: transparent; border: 0;
 }
 
 .subpanel { display: flex; flex-direction: column; gap: 12px; padding: 16px 18px; border: 1.5px solid var(--linea); border-radius: var(--radio); background: #f6f9fe; }
-.borradores { padding: 12px 16px; gap: 10px; }
+.borradores { padding: 6px 8px 6px 14px; gap: 8px; }
 a.boton { text-decoration: none; }
 .tabla-versiones th[scope='row'] { text-align: left; font-weight: 700; white-space: nowrap; background: transparent; }
 .tabla-versiones tr[aria-current] { background: #f2fbf5; }
@@ -260,3 +265,11 @@ a.boton { text-decoration: none; }
 /* Lista larga junto a un detalle: se desplaza sola y queda a la vista mientras se edita. */
 .lista-alta { position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto; }
 @media (max-width: 1100px) { .lista-alta { position: static; max-height: 320px; } }
+
+/* Portátiles de colegio (1366×768): menú más compacto para que quepa entero sin desplazar. */
+@media (min-width: 861px) and (max-height: 820px) {
+  .riel { padding-top: 18px; }
+  .riel .colegio { padding-bottom: 10px; }
+  .riel nav button { padding-top: 8px; padding-bottom: 8px; }
+  .riel .pie { padding-top: 10px; gap: 6px; }
+}

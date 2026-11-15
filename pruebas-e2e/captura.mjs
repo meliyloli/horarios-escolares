@@ -3,11 +3,11 @@ import puppeteer from 'puppeteer-core'
 import { pathToFileURL } from 'node:url'
 import { mkdirSync } from 'node:fs'
 
-const [carpeta = 'capturas', ancho = '1440'] = process.argv.slice(2)
+const [carpeta = 'capturas', ancho = '1440', alto = '900'] = process.argv.slice(2)
 mkdirSync(carpeta, { recursive: true })
 const navegador = await puppeteer.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: true })
 const pagina = await navegador.newPage()
-await pagina.setViewport({ width: Number(ancho), height: 900 })
+await pagina.setViewport({ width: Number(ancho), height: Number(alto) })
 const errores = []
 pagina.on('pageerror', (e) => errores.push(String(e)))
 pagina.on('console', (m) => m.type() === 'error' && errores.push(m.text()))

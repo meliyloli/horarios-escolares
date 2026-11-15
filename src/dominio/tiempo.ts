@@ -9,7 +9,7 @@ export const clave = (dia: number, franja: number): string => `${dia}-${franja}`
 
 export const nivelDeGrado = (grado: number): Nivel => (grado <= 5 ? 'primaria' : 'bachillerato')
 
-export const nombreGrupo = (g: Grupo): string => `${g.grado}-${g.numero}`
+export const nombreGrupo = (g: Grupo): string => g.nombre || `${g.grado}-${g.numero}`
 
 export const cicloDeGrupo = (e: Estado, g: Grupo): Ciclo => g.ciclo ?? e.colegio.ciclo
 
@@ -42,14 +42,19 @@ export const esMediaTecnica = (e: Estado, areaId: Id): boolean => {
   return a?.mediaTecnica ?? (!!a && /media\s*t[eé]cnica/i.test(a.nombre))
 }
 
+/** ¿El colegio tiene media técnica? La activó, o (si nunca lo dijo) ya tiene algún programa. */
+export const tieneMediaTecnica = (e: Estado): boolean => e.colegio.mediaTecnica ?? e.areas.some((a) => esMediaTecnica(e, a.id))
+
 /**
  * La jornada de las clases de una asignación: la que se le eligió (contrajornada); si no, la media técnica va en la
  * otra jornada del grupo (es una jornada extra) y lo demás en la del grupo.
  */
 export const jornadaDeAsignacion = (e: Estado, a: Pick<Asignacion, 'grupoId' | 'areaId' | 'jornada'>): Jornada => {
   if (a.jornada) return a.jornada
-  const base = e.grupos.find((g) => g.id === a.grupoId)?.jornada ?? 'manana'
-  return esMediaTecnica(e, a.areaId) ? otraJornada(base) : base
+  const g = e.grupos.find((x) => x.id === a.grupoId)
+  const base = g?.jornada ?? 'manana'
+  // Un grupo mezclado de media técnica ya está en la jornada en que se dicta.
+  return esMediaTecnica(e, a.areaId) && !g?.de ? otraJornada(base) : base
 }
 
 /** Las jornadas en que un grupo tiene clases: la suya y, si alguna materia va en contrajornada, la otra. */

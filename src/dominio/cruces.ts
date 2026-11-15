@@ -169,7 +169,8 @@ export const detectarCruces = (e: Estado, reglas: Reglas = e.colegio.reglas): Cr
       })
   }
 
-  for (const d of e.docentes) {
+  // Las reglas de carga y de horas libres son de los docentes de planta, no de los instructores externos.
+  for (const d of e.docentes.filter((x) => !x.externo)) {
     const suyas = todas.filter((s) => s.docenteId === d.id)
     const porDia = (dia: number) => suyas.filter((s) => s.dia === dia)
     // Día lleno: todas sus franjas (12 si dicta en la mañana y en la tarde).

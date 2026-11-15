@@ -136,6 +136,7 @@ Baloo 2 variable (400 a 800), incluida dentro del archivo: sin conexión se ve i
 
 - Rejilla de la app: riel fijo de 264 px y contenido fluido. El contenido usa 28 px arriba, 32 px a los lados.
 - Patrones: `columnas` (contenido + panel lateral de 320 px), `maestro` (lista de 340 px + detalle). El panel de detalle queda pegado al desplazarse.
+- Horario: lo que va arriba de la cuadrícula se mantiene en el mínimo (pestañas y selector); el día con incapacidades se elige en el panel lateral. En un portátil de 1366×768 se ven tres franjas sin desplazar.
 - Horario: columna de 40 px para el número de franja y una columna igual por día. Los descansos son bandas completas después de las franjas 2 y 4. Con más de 5 días la cuadrícula pasa a modo compacto.
 - Menos de 1100 px: las columnas se apilan. Menos de 860 px: el riel pasa arriba con navegación horizontal.
 - Impresión: hoja horizontal, un docente, grupo o aula por hoja; el horario general va un día por hoja. Los colores se imprimen exactos.
@@ -151,7 +152,7 @@ Esquinas de 12 px en paneles, botones y bloques de clase; 8 px en campos y eleme
 ## Components
 
 - **Botón.** 42 px de alto, borde `linea-fuerte`, peso 700. Variantes: `primario` (naranja), `peligro` (texto rojo), `chico` (34 px), `icono`. Estados: hover (borde `seleccion`), activo (baja 1 px), foco (anillo de 3 px), deshabilitado (55 %).
-- **Riel.** Botones de navegación con ícono de trazo; el activo en amarillo. El contador de cruces va en una marca roja suave.
+- **Riel.** Botones de navegación con ícono de trazo, en el orden del trabajo y separados por etapas con una línea fina: preparar (Colegio, Áreas, Grupos, Asignación, Media técnica), Horario, día a día (Acompañamiento, Incapacidades) y Colegios y versiones. El activo en amarillo. El contador de cruces va en una marca roja suave. Si no hay respaldo en 7 días, el pie lo dice en una banda ámbar y «Guardar respaldo» se resalta. En pantallas de 768 px de alto el riel se compacta para caber entero.
 - **Bloque de clase.** Color del área, primera línea en negrita (lo principal de esa vista), líneas siguientes en 0.875 rem. Fijada y cruce se marcan con sellos de ícono arriba a la derecha. Seleccionada: se levanta 3 px con doble anillo blanco y azul.
 - **Aviso.** Banda de fondo suave con ícono a la izquierda y acciones a la derecha. Tipos: aviso (ámbar), error, bien, info. Los cruces son avisos tocables que llevan a la clase.
 - **Ficha.** Píldora para estados cortos: carga 22/22, horas cubiertas.

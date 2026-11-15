@@ -14,7 +14,9 @@ export function Areas() {
   const { estado, cambiar, confirmar } = useEstado()
   const [importando, setImportando] = useState(false)
   const [leyendoIntensidad, setLeyendoIntensidad] = useState(false)
-  const { areas, intensidad } = estado
+  const { intensidad } = estado
+  // Los programas de media técnica no son del plan de estudios: van en su propio apartado.
+  const areas = estado.areas.filter((a) => !esMediaTecnica(estado, a.id))
   const areaCon = (id: string, c: Partial<Area>) => cambiar((e) => ({ ...e, areas: e.areas.map((a) => (a.id === id ? { ...a, ...c } : a)) }))
   const agregar = () =>
     cambiar((e) => {
@@ -24,9 +26,7 @@ export function Areas() {
     })
   const horasCon = (grado: number, areaId: string, horas: number) =>
     cambiar((e) => ({ ...e, intensidad: { ...e.intensidad, [grado]: { ...e.intensidad[grado], [areaId]: horas } } }))
-  // La media técnica no cuenta en el máximo semanal: se suma aparte.
-  const total = (grado: number) => areas.reduce((s, a) => s + (esMediaTecnica(estado, a.id) ? 0 : intensidad[grado]?.[a.id] ?? 0), 0)
-  const tecnica = (grado: number) => areas.reduce((s, a) => s + (esMediaTecnica(estado, a.id) ? intensidad[grado]?.[a.id] ?? 0 : 0), 0)
+  const total = (grado: number) => areas.reduce((s, a) => s + (intensidad[grado]?.[a.id] ?? 0), 0)
 
   return (
     <>
@@ -35,7 +35,7 @@ export function Areas() {
         {!leyendoIntensidad && estado.asignaciones.length > 0 && <button className="boton" onClick={() => setLeyendoIntensidad(true)}>Leer intensidad desde la asignación</button>}
         {!importando && <button className="boton" onClick={() => setImportando(true)}><Icono nombre="subir" />Importar Word o PDF</button>}
         <button className="boton primario" onClick={agregar}><Icono nombre="mas" />Agregar área</button>
-        <p className="guia">Las áreas del plan del colegio, cuáles son afines entre sí y cuántas horas por semana tiene cada una en cada grado.</p>
+        <p className="guia">Las áreas del plan de estudios, cuáles son afines entre sí y cuántas horas por semana tiene cada una en cada grado. La media técnica va aparte, en su propio apartado.</p>
       </header>
       {importando && <Importar alCerrar={() => setImportando(false)} />}
       {leyendoIntensidad && <IntensidadDesdeAsignacion alCerrar={() => setLeyendoIntensidad(false)} />}
@@ -52,7 +52,7 @@ export function Areas() {
             <div className="tabla-caja">
               <table className="datos">
                 <thead>
-                  <tr><th>Color</th><th>Área</th><th title="Sus horas no cuentan en el máximo de 30 horas por semana del grupo">Media técnica</th><th>Áreas afines: lo que puede dictar un docente nombrado en esta área</th><th>Unir con</th><th /></tr>
+                  <tr><th>Color</th><th>Área</th><th>Áreas afines: lo que puede dictar un docente nombrado en esta área</th><th>Unir con</th><th /></tr>
                 </thead>
                 <tbody>
                   {areas.map((a) => {
@@ -61,9 +61,6 @@ export function Areas() {
                       <tr key={a.id}>
                         <td><input type="color" aria-label={`Color de ${a.nombre}`} value={colorDeArea(estado, a.id)} onChange={(ev) => areaCon(a.id, { color: ev.target.value })} /></td>
                         <td><input type="text" aria-label="Nombre del área" value={a.nombre} onChange={(ev) => areaCon(a.id, { nombre: ev.target.value })} /></td>
-                        <td className="num">
-                          <input type="checkbox" aria-label={`${a.nombre} es media técnica`} checked={esMediaTecnica(estado, a.id)} onChange={(ev) => areaCon(a.id, { mediaTecnica: ev.target.checked })} />
-                        </td>
                         <td>
                           <div className="fila">
                             {a.afines.map((id) => (
@@ -126,8 +123,7 @@ export function Areas() {
           <section className="pila">
             <h3>Intensidad horaria: horas por semana en cada grado</h3>
             <p className="suave">
-              La app comprueba que cada grupo reciba exactamente estas horas. El total por semana no puede pasar de 25 en primaria ni de 30 en bachillerato; las áreas
-              marcadas como media técnica no cuentan en ese máximo y se suman aparte («+6 MT»). En ciclo de 10 días se cuentan dobles y se aceptan medias horas
+              La app comprueba que cada grupo reciba exactamente estas horas. El total por semana no puede pasar de 25 en primaria ni de 30 en bachillerato. En ciclo de 10 días se cuentan dobles y se aceptan medias horas
               (1,5 por semana son 3 en el ciclo).
             </p>
             <div className="tabla-caja">
@@ -159,7 +155,6 @@ export function Areas() {
                     {GRADOS.map((g) => (
                       <td key={g} className="num">
                         <span className={`ficha ${total(g) > MAX_SEMANA[nivelDeGrado(g)] ? 'error' : ''}`} title={total(g) > MAX_SEMANA[nivelDeGrado(g)] ? `Pasa del máximo de ${MAX_SEMANA[nivelDeGrado(g)]} horas por semana en ${nivelDeGrado(g)}` : undefined}>{total(g)}</span>
-                        {tecnica(g) > 0 && <span className="suave" style={{ display: 'block', fontSize: '0.8125rem' }} title="Media técnica: no cuenta en el máximo">+{tecnica(g)} MT</span>}
                       </td>
                     ))}
                   </tr>

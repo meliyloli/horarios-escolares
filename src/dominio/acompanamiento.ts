@@ -5,6 +5,9 @@ import type { AjusteDia, Descanso, Docente, Estado, Id, Jornada, Turno, Zona } f
 /** La pareja fija de una zona, solo si ya están elegidos los dos docentes (y son distintos). */
 export const parejaDe = (z: Zona): [Id, Id] | undefined => (z.pareja && z.pareja[0] && z.pareja[1] && z.pareja[0] !== z.pareja[1] ? z.pareja : undefined)
 
+/** Quienes acompañan descansos: los docentes de planta (no los instructores externos de media técnica). */
+const planta = (e: Estado) => e.docentes.filter((d) => !d.externo)
+
 /** Las franjas que rodean cada descanso: el 1.º va entre la 2 y la 3; el 2.º, entre la 4 y la 5. */
 const ALREDEDOR: Record<Descanso, [number, number]> = { 1: [2, 3], 2: [4, 5] }
 
@@ -48,7 +51,7 @@ export const repartirAcompanamiento = (e: Estado): Estado => {
         const libre = (d: Docente) => !ocupado.has(`${d.id}|${z.jornada}|${dia}|${k}`) && !elegidos.includes(d.id)
         const sinRepetir = (d: Docente) => !z.algida || ![dia - 1, dia + 1].some((v) => algidaEn.has(`${z.id}|${d.id}|${v}`))
         const pareja = parejaDe(z)
-        const base = pareja ? e.docentes.filter((d) => pareja.includes(d.id)) : e.docentes
+        const base = pareja ? planta(e).filter((d) => pareja.includes(d.id)) : planta(e)
         // Del más estricto al más flexible: si nadie cumple todo, se relaja lo que haga falta (y la app lo avisa).
         const filtros = [(d: Docente) => libre(d) && presente(d, z.jornada, dia, k) && sinRepetir(d), (d: Docente) => libre(d) && presente(d, z.jornada, dia, k), libre]
         for (let n = 0; n < z.personas; n++) {
@@ -72,9 +75,9 @@ export const cargaAcompanamiento = (e: Estado): { docenteId: Id; turnos: number;
   const { peso, horas } = datosDocentes(e)
   const turnos = e.acompanamiento?.turnos ?? []
   const total = turnos.reduce((n, t) => n + t.docenteIds.length, 0)
-  const conTurnos = e.docentes.filter((d) => turnos.some((t) => t.docenteIds.includes(d.id)) || !e.acompanamiento?.zonas.some((z) => parejaDe(z)))
+  const conTurnos = planta(e).filter((d) => turnos.some((t) => t.docenteIds.includes(d.id)) || !e.acompanamiento?.zonas.some((z) => parejaDe(z)))
   const sumaPesos = conTurnos.reduce((n, d) => n + peso(d), 0) || 1
-  return e.docentes.map((d) => ({
+  return planta(e).map((d) => ({
     docenteId: d.id,
     turnos: turnos.filter((t) => t.docenteIds.includes(d.id)).length,
     horas: horas.get(d.id) ?? 0,
@@ -128,7 +131,7 @@ export const turnosSinCubrir = (e: Estado, aj: AjusteDia): { zonaId: Id; descans
     const z = zonas.find((x) => x.id === t.zonaId)
     if (!z) continue
     for (const ausente of t.docenteIds.filter((id) => falta(id, t.descanso))) {
-      const sugerido = e.docentes
+      const sugerido = planta(e)
         .filter((d) => !falta(d.id, t.descanso) && !ocupado.has(`${d.id}|${t.descanso}`) && presente(d, z.jornada, t.dia, t.descanso))
         .sort((a, b) => ((cuenta.get(a.id) ?? 0) + 1) / peso(a) - ((cuenta.get(b.id) ?? 0) + 1) / peso(b) || a.nombre.localeCompare(b.nombre))[0]
       if (sugerido) ocupado.add(`${sugerido.id}|${t.descanso}`)

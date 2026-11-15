@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { esTitular, horasDocente, horasSemanaGrupo } from '../../dominio/asignacion'
 import { cambiarCicloGrupo, eliminarAula, eliminarDocente, eliminarGrupo, unirDocentes } from '../../dominio/edicion'
-import { cargaEnCiclo, claveDocente, dictaEn, diasHorario, FRANJAS, franjasDisponibles, jornadasDe, MAX_SEMANA, nivelDeGrado, nombreDia, nombreGrupo, nuevoId } from '../../dominio/tiempo'
+import { cargaEnCiclo, claveDocente, dictaEn, diasHorario, esMediaTecnica, tieneMediaTecnica, FRANJAS, franjasDisponibles, jornadasDe, MAX_SEMANA, nivelDeGrado, nombreDia, nombreGrupo, nuevoId } from '../../dominio/tiempo'
 import type { Aula, Ciclo, Docente, Grupo, Jornada } from '../../dominio/tipos'
 import { colorDeArea } from '../colores'
 import { aNumero, Campo, Icono, Pestanas, Vacio } from '../componentes'
@@ -21,7 +21,7 @@ export function Datos() {
       </header>
       <Pestanas
         etiqueta="Qué editar" valor={pestana} alCambiar={setPestana}
-        opciones={[['grupos', `Grupos (${estado.grupos.length})`], ['docentes', `Docentes (${estado.docentes.length})`], ['aulas', `Aulas (${estado.aulas.length})`]]}
+        opciones={[['grupos', `Grupos (${estado.grupos.filter((g) => !g.de).length})`], ['docentes', `Docentes (${estado.docentes.length})`], ['aulas', `Aulas (${estado.aulas.length})`]]}
       />
       {pestana === 'grupos' && <Grupos />}
       {pestana === 'docentes' && <Docentes />}
@@ -32,7 +32,8 @@ export function Datos() {
 
 function Grupos() {
   const { estado, cambiar, confirmar } = useEstado()
-  const grupos = [...estado.grupos].sort((a, b) => a.grado - b.grado || a.numero - b.numero)
+  // Los grupos mezclados de media técnica se arman en su propio apartado.
+  const grupos = estado.grupos.filter((g) => !g.de).sort((a, b) => a.grado - b.grado || a.numero - b.numero)
   const grupoCon = (id: string, c: Partial<Grupo>) => cambiar((e) => ({ ...e, grupos: e.grupos.map((g) => (g.id === id ? { ...g, ...c } : g)) }))
   const agregar = () =>
     cambiar((e) => {
@@ -49,12 +50,12 @@ function Grupos() {
       boton: 'Sí, cambiar el ciclo', accion: aplicar,
     })
   }
-  const sinAula = estado.grupos.filter((g) => !g.aulaId)
+  const sinAula = grupos.filter((g) => !g.aulaId)
   const crearAulas = () =>
     cambiar((e) => {
       const aulas = [...e.aulas]
       const grupos = e.grupos.map((g) => {
-        if (g.aulaId) return g
+        if (g.aulaId || g.de) return g
         const aula: Aula = { id: nuevoId(), nombre: `Aula ${nombreGrupo(g)}` }
         aulas.push(aula)
         return { ...g, aulaId: aula.id }
@@ -234,10 +235,10 @@ function Docentes() {
                     <span className="muestra" style={{ background: esTitular(d) ? 'var(--linea-fuerte)' : colorDeArea(estado, d.areaId) }} />
                     <span style={{ minWidth: 0 }}>
                       {d.nombre}
-                      <span className="detalle">{esTitular(d) ? 'Titular de primaria' : `${estado.areas.find((a) => a.id === d.areaId)?.nombre ?? 'Sin área'} · ${d.nivel}`}</span>
+                      <span className="detalle">{d.externo ? 'Instructor externo · media técnica' : esTitular(d) ? 'Titular de primaria' : `${estado.areas.find((a) => a.id === d.areaId)?.nombre ?? 'Sin área'} · ${d.nivel}`}</span>
                       {d.noDisponible.length > 0 && <span className="ficha" style={{ marginTop: 3 }} title="Tiene franjas en las que no puede dictar">Horario limitado</span>}
                     </span>
-                    <span className={`ficha empuja ${horas === carga ? 'bien' : 'aviso-ficha'}`} title="Horas asignadas de su carga">{horas}/{carga}</span>
+                    {d.externo ? <span className="ficha empuja" title="Horas de media técnica asignadas">{horas} h</span> : <span className={`ficha empuja ${horas === carga ? 'bien' : 'aviso-ficha'}`} title="Horas asignadas de su carga">{horas}/{carga}</span>}
                   </button>
                 )
               })}
@@ -271,15 +272,22 @@ function Docentes() {
           </div>
           <div className="rejilla-campos">
             <Campo etiqueta="Nombre"><input type="text" value={docente.nombre} onChange={(ev) => docenteCon({ nombre: ev.target.value })} /></Campo>
-            {!esTitular(docente) && (
-              <Campo etiqueta="Área de nombramiento">
-                <select value={docente.areaId} onChange={(ev) => docenteCon({ areaId: ev.target.value })}>
-                  {!estado.areas.some((a) => a.id === docente.areaId) && <option value="">Sin área: elige una</option>}
-                  {estado.areas.map((a) => <option key={a.id} value={a.id}>{a.nombre}</option>)}
+            {(docente.externo || tieneMediaTecnica(estado)) && (
+              <Campo etiqueta="Tipo" ayuda={docente.externo ? 'Dicta media técnica. No tiene carga de 22 horas ni acompaña descansos.' : undefined}>
+                <select value={docente.externo ? 'externo' : 'planta'} onChange={(ev) => docenteCon(ev.target.value === 'externo' ? { externo: true, jornada: 'ambas', cargaSemanal: 0, horasExtra: undefined, direccionGrupoId: undefined } : { externo: undefined, cargaSemanal: 22 })}>
+                  <option value="planta">Docente de planta</option><option value="externo">Instructor externo (media técnica)</option>
                 </select>
               </Campo>
             )}
-            <Campo etiqueta="Nivel">
+            {!esTitular(docente) && !docente.externo && (
+              <Campo etiqueta="Área de nombramiento">
+                <select value={docente.areaId} onChange={(ev) => docenteCon({ areaId: ev.target.value })}>
+                  {!estado.areas.some((a) => a.id === docente.areaId) && <option value="">Sin área: elige una</option>}
+                  {estado.areas.filter((a) => a.id === docente.areaId || !esMediaTecnica(estado, a.id)).map((a) => <option key={a.id} value={a.id}>{a.nombre}</option>)}
+                </select>
+              </Campo>
+            )}
+            {!docente.externo && <Campo etiqueta="Nivel">
               <select
                 value={docente.nivel}
                 onChange={(ev) => {
@@ -289,8 +297,8 @@ function Docentes() {
               >
                 <option value="bachillerato">Bachillerato</option><option value="primaria">Primaria</option>
               </select>
-            </Campo>
-            {docente.nivel === 'primaria' && (
+            </Campo>}
+            {docente.nivel === 'primaria' && !docente.externo && (
               <Campo etiqueta="Rol en primaria" ayuda="El titular dicta casi todo a su grupo; el especialista dicta un área a varios grupos.">
                 <select value={docente.rolPrimaria ?? 'titular'} onChange={(ev) => docenteCon({ rolPrimaria: ev.target.value as Docente['rolPrimaria'] })}>
                   <option value="titular">Titular</option><option value="especialista">Especialista</option>
@@ -309,6 +317,7 @@ function Docentes() {
                 <option value="manana">Mañana</option><option value="tarde">Tarde</option><option value="ambas">Mañana y tarde (horario intermedio)</option>
               </select>
             </Campo>
+            {!docente.externo && <>
             <Campo etiqueta="Carga por semana" ayuda={dias === 10 ? `En el ciclo de 10 días son ${docente.cargaSemanal * 2} horas.` : '22 en bachillerato y 25 en primaria.'}>
               <input type="number" min={0} max={30} value={docente.cargaSemanal} onChange={(ev) => docenteCon({ cargaSemanal: aNumero(ev.target.value) })} />
             </Campo>
@@ -318,9 +327,10 @@ function Docentes() {
             <Campo etiqueta="Dirección de grupo" ayuda="No suma horas. Sirve para decidir con qué grupos completa su carga.">
               <select value={docente.direccionGrupoId ?? ''} onChange={(ev) => docenteCon({ direccionGrupoId: ev.target.value || undefined })}>
                 <option value="">Ninguna</option>
-                {estado.grupos.filter((g) => dictaEn(docente, g.jornada)).map((g) => <option key={g.id} value={g.id}>{nombreGrupo(g)}</option>)}
+                {estado.grupos.filter((g) => !g.de && dictaEn(docente, g.jornada)).map((g) => <option key={g.id} value={g.id}>{nombreGrupo(g)}</option>)}
               </select>
             </Campo>
+            </>}
             {estado.colegio.modeloAula !== 'grupo' && estado.colegio.modeloAula !== 'ninguna' && (
               <Campo etiqueta="Aula fija" ayuda="Si la tiene, los grupos van a su aula.">
                 <select value={docente.aulaId ?? ''} onChange={(ev) => docenteCon({ aulaId: ev.target.value || undefined })}>

@@ -52,7 +52,7 @@ export function Acompanamiento({ alIr }: { alIr: (p: Pantalla) => void }) {
   const tablaTurnos = (jornada: Jornada, editable: boolean) => {
     const filas = zonas.filter((z) => z.jornada === jornada).flatMap((z) => z.descansos.slice().sort().map((k) => ({ z, k })))
     if (filas.length === 0) return null
-    const posibles = estado.docentes.filter((d) => dictaEn(d, jornada))
+    const posibles = estado.docentes.filter((d) => !d.externo && dictaEn(d, jornada))
     return (
       <div className="tabla-caja" key={jornada}>
         <table className="datos tabla-turnos">
@@ -124,11 +124,12 @@ export function Acompanamiento({ alIr }: { alIr: (p: Pantalla) => void }) {
           <h3 id="titulo-zonas">Zonas</h3>
           <span className="fila empuja">
             {zonas.length === 0 && (
-              <button className="boton chico" onClick={() => conAcompanamiento((a) => ({ ...a, zonas: COMUNES.map(([n, algida]) => ({ ...zonaNueva(nuevoId(), n), ...(algida ? { algida } : {}) })) }))}>
+              // Sin zonas, lo que conviene primero es partir de las comunes: esa es la acción principal.
+              <button className="boton chico primario" onClick={() => conAcompanamiento((a) => ({ ...a, zonas: COMUNES.map(([n, algida]) => ({ ...zonaNueva(nuevoId(), n), ...(algida ? { algida } : {}) })) }))}>
                 Agregar zonas comunes
               </button>
             )}
-            <button className="boton chico primario" onClick={() => conAcompanamiento((a) => ({ ...a, zonas: [...a.zonas, zonaNueva(nuevoId(), `Zona ${a.zonas.length + 1}`)] }))}>
+            <button className={`boton chico ${zonas.length ? 'primario' : ''}`} onClick={() => conAcompanamiento((a) => ({ ...a, zonas: [...a.zonas, zonaNueva(nuevoId(), `Zona ${a.zonas.length + 1}`)] }))}>
               <Icono nombre="mas" tamano={18} />Agregar zona
             </button>
           </span>
@@ -190,7 +191,7 @@ export function Acompanamiento({ alIr }: { alIr: (p: Pantalla) => void }) {
                             }}
                           >
                             <option value="">{n === 0 ? 'Sin pareja' : '—'}</option>
-                            {estado.docentes.filter((d) => dictaEn(d, z.jornada)).map((d) => <option key={d.id} value={d.id}>{d.nombre}</option>)}
+                            {estado.docentes.filter((d) => !d.externo && dictaEn(d, z.jornada)).map((d) => <option key={d.id} value={d.id}>{d.nombre}</option>)}
                           </select>
                         ))}
                       </span>
