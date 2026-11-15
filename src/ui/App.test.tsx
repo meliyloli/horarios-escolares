@@ -329,3 +329,17 @@ describe('media técnica', () => {
     expect(screen.getByText('+6 MT')).toBeTruthy()
   })
 })
+
+describe('áreas afines comunes', () => {
+  it('«Poner afines comunes» llena las afines de las áreas que reconoce (por ejemplo, las importadas sin afines)', () => {
+    const e = estadoVacio()
+    e.areas = e.areas.map((a) => ({ ...a, afines: [] }))
+    render(<App inicial={e} />)
+    abrir('Áreas')
+    expect(screen.queryByRole('button', { name: 'Quitar Ciencias Sociales de las afines de Ética y Valores' })).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Poner afines comunes' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Sí, poner las comunes' }))
+    for (const afin of ['Ciencias Sociales', 'Educación Religiosa', 'Filosofía'])
+      expect(screen.getByRole('button', { name: `Quitar ${afin} de las afines de Ética y Valores` })).toBeTruthy()
+  })
+})

@@ -1,5 +1,7 @@
 // Lectura de las tablas de un documento del colegio (intensidad horaria y asignación por docente).
 // Aquí no se abre ningún archivo: llegan las tablas ya extraídas como filas de texto.
+import { conAfinesComunes } from './afines'
+import { normal } from './texto'
 import { nivelDeGrado, nombreGrupo, nuevoId } from './tiempo'
 import type { Area, Estado, Grupo, Id } from './tipos'
 
@@ -12,8 +14,7 @@ export interface FilaAsignacion { docente: string; area: string; grupos: GrupoLe
 export interface Columnas { encabezado: number; docente: number; area: number; grupos: number; horas: number }
 
 /** Minúsculas, sin tildes ni signos: para comparar nombres escritos de formas distintas. */
-export const normal = (s: string): string =>
-  s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+export { normal } from './texto'
 
 const ORDINALES = ['primero', 'segundo', 'tercero', 'cuarto', 'quinto', 'sexto', 'septimo', 'octavo', 'noveno', 'decimo', 'once']
 
@@ -350,5 +351,8 @@ export const aplicarImportacion = (
     const unSoloGrupo = new Set(suyas.map((a) => a.grupoId)).size === 1
     if (d.nivel === 'primaria' && unSoloGrupo && porArea.size >= 3) Object.assign(d, { rolPrimaria: 'titular', direccionGrupoId: suyas[0].grupoId })
   }
-  return { estado: { ...e, areas, grupos, docentes, intensidad, asignaciones }, resumen }
+  // Las áreas que llegan nuevas del documento salen con las afines comunes; las del colegio no se tocan.
+  const nuevas = new Set(areas.filter((a) => !e.areas.some((x) => x.id === a.id)).map((a) => a.id))
+  const conAfines = conAfinesComunes({ ...e, areas }, true).areas.map((a, i) => (nuevas.has(a.id) ? a : areas[i]))
+  return { estado: { ...e, areas: conAfines, grupos, docentes, intensidad, asignaciones }, resumen }
 }

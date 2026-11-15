@@ -1,3 +1,4 @@
+import { AFINES_COMUNES } from './afines'
 import type { Area, Asignacion, Docente, Estado, Grupo, Reglas } from './tipos'
 
 export const reglasPorDefecto = (): Reglas => ({
@@ -12,20 +13,15 @@ export const reglasPorDefecto = (): Reglas => ({
   bloquesDeDos: { activa: false },
 })
 
-/** Áreas obligatorias (Ley 115) con una lista inicial de afines que cada colegio edita. */
-export const areasIniciales = (): Area[] => [
-  { id: 'mat', nombre: 'Matemáticas', afines: ['tec', 'eti', 'rel'] },
-  { id: 'len', nombre: 'Lengua Castellana', afines: ['ing', 'eti', 'rel'] },
-  { id: 'ing', nombre: 'Inglés', afines: ['len', 'eti', 'rel'] },
-  { id: 'nat', nombre: 'Ciencias Naturales', afines: ['tec', 'eti', 'rel'] },
-  { id: 'soc', nombre: 'Ciencias Sociales', afines: ['fil', 'eti', 'rel'] },
-  { id: 'fil', nombre: 'Filosofía', afines: ['soc', 'eti', 'rel'] },
-  { id: 'art', nombre: 'Educación Artística', afines: ['efi', 'eti', 'rel'] },
-  { id: 'efi', nombre: 'Educación Física', afines: ['art', 'eti', 'rel'] },
-  { id: 'eti', nombre: 'Ética y Valores', afines: ['rel', 'soc', 'fil'] },
-  { id: 'rel', nombre: 'Educación Religiosa', afines: ['eti', 'soc', 'fil'] },
-  { id: 'tec', nombre: 'Tecnología e Informática', afines: ['mat', 'nat'] },
-]
+/** Áreas obligatorias (Ley 115) con las afines comunes en Colombia (ver afines.ts); cada colegio las edita. */
+export const areasIniciales = (): Area[] => {
+  const ids = ['mat', 'len', 'ing', 'nat', 'soc', 'fil', 'art', 'efi', 'eti', 'rel', 'tec'] as const
+  const nombres = {
+    mat: 'Matemáticas', len: 'Lengua Castellana', ing: 'Inglés', nat: 'Ciencias Naturales', soc: 'Ciencias Sociales', fil: 'Filosofía',
+    art: 'Educación Artística', efi: 'Educación Física', eti: 'Ética y Valores', rel: 'Educación Religiosa', tec: 'Tecnología e Informática',
+  }
+  return ids.map((id) => ({ id, nombre: nombres[id], afines: AFINES_COMUNES[id].filter((x): x is (typeof ids)[number] => (ids as readonly string[]).includes(x)) }))
+}
 
 const PRIMARIA = { mat: 5, len: 5, ing: 2, nat: 3, soc: 3, art: 2, efi: 2, eti: 1, rel: 1, tec: 1 }
 const BASICA = { mat: 5, len: 5, ing: 4, nat: 4, soc: 4, art: 2, efi: 2, eti: 1, rel: 1, tec: 2 }

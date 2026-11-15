@@ -1,3 +1,4 @@
+import { conAfinesComunes } from './afines'
 import { nuevoBorrador } from './borradores'
 import { sincronizarClases } from './edicion'
 import { normal } from './importar'
@@ -141,7 +142,10 @@ export const versionDesdeHorario = (
   resumen.clases = clases.length
   if (clases.length === 0) resumen.sinAulas = false
   const colegio = resumen.sinAulas ? { ...base.colegio, modeloAula: 'ninguna' as const } : base.colegio
-  const estado = sincronizarClases({ ...base, colegio, docentes, grupos, areas, asignaciones: [...asignaciones.values()], clases })
+  // Las áreas nuevas que trae el PDF salen con las afines comunes; las del colegio quedan como estaban.
+  const nuevas = new Set(areas.filter((a) => !base.areas.some((x) => x.id === a.id)).map((a) => a.id))
+  const conAfines = conAfinesComunes({ ...base, areas }, true).areas.map((a, i) => (nuevas.has(a.id) ? a : areas[i]))
+  const estado = sincronizarClases({ ...base, colegio, docentes, grupos, areas: conAfines, asignaciones: [...asignaciones.values()], clases })
   return { estado, resumen }
 }
 

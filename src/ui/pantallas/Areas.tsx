@@ -1,3 +1,4 @@
+import { conAfinesComunes, tipoDeArea } from '../../dominio/afines'
 import { eliminarArea, unirAreas } from '../../dominio/edicion'
 import { esMediaTecnica, MAX_SEMANA, nivelDeGrado, nuevoId } from '../../dominio/tiempo'
 import type { Area } from '../../dominio/tipos'
@@ -11,7 +12,7 @@ import { useState } from 'react'
 const GRADOS = Array.from({ length: 11 }, (_, i) => i + 1)
 
 export function Areas() {
-  const { estado, cambiar, confirmar } = useEstado()
+  const { estado, cambiar, confirmar, avisar } = useEstado()
   const [importando, setImportando] = useState(false)
   const [leyendoIntensidad, setLeyendoIntensidad] = useState(false)
   const { intensidad } = estado
@@ -45,8 +46,29 @@ export function Areas() {
       ) : (
         <>
           <section className="pila">
-            <h3>Áreas y áreas afines</h3>
-            <p className="suave">Un docente puede completar su carga en las áreas afines a la suya cuando no hay horas suficientes en su área.</p>
+            <div className="fila">
+              <h3>Áreas y áreas afines</h3>
+              <button
+                className="boton chico empuja"
+                onClick={() => {
+                  const reconocidas = areas.filter((a) => tipoDeArea(a.nombre))
+                  const otras = areas.filter((a) => !tipoDeArea(a.nombre)).map((a) => a.nombre)
+                  if (reconocidas.length === 0) return avisar('No reconocí ninguna área del plan de estudios por su nombre. Pon las afines a mano.')
+                  confirmar({
+                    titulo: '¿Poner las afines comunes?',
+                    mensaje: `Las ${reconocidas.length} áreas que la app reconoce reciben las afines más comunes en colegios de Colombia, y se reemplazan las que tengan ahora.${otras.length ? ` Quedan como están: ${otras.join(', ')}.` : ''} Después las puedes cambiar. Se puede deshacer.`,
+                    boton: 'Sí, poner las comunes', accion: () => cambiar((e) => conAfinesComunes(e)),
+                  })
+                }}
+              >
+                Poner afines comunes
+              </button>
+            </div>
+            <p className="suave">
+              Un docente puede completar su carga en las áreas afines a la suya cuando no hay horas suficientes en su área. Las comunes agrupan las áreas que comparten
+              títulos docentes (Humanidades; Matemáticas, Tecnología y Naturales; Sociales, Filosofía, Ética y Religión; Artística y Educación Física), y dejan
+              Ética y Religión al final de todas, porque son las que más se usan para completar la carga.
+            </p>
             <div className="tabla-caja">
               <table className="datos">
                 <thead>
