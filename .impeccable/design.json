@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-11T12:00:00.000Z",
+  "title": "Design System: Horarios escolares",
+  "extensions": {
+    "colorMeta": {
+      "riel": { "role": "primary", "displayName": "Azul noche", "canonical": "#14285a", "tonalRamp": ["#0b1736", "#14285a", "#21397a", "#3b5596", "#5d78bd", "#a9bee6", "#dce7fb", "#eaf2fb"] },
+      "riel-activo": { "role": "secondary", "displayName": "Amarillo cartulina", "canonical": "#ffc93c", "tonalRamp": ["#5c4300", "#7a4f00", "#a87400", "#d99a00", "#ffc93c", "#ffd970", "#fff1c7", "#fff8e3"] },
+      "primario": { "role": "tertiary", "displayName": "Naranja marcador", "canonical": "#ff7a45", "tonalRamp": ["#5c1e05", "#8f3310", "#c84c1a", "#f2622a", "#ff7a45", "#ffa27d", "#ffd0bd", "#ffe9e3"] },
+      "fondo": { "role": "neutral", "displayName": "Azul cielo", "canonical": "#eaf2fb", "tonalRamp": ["#1b2b4b", "#4e607f", "#9db4d9", "#c9d8ee", "#d9e6f8", "#e1edff", "#eaf2fb", "#f6f9fe"] },
+      "seleccion": { "role": "primary", "displayName": "Azul rey", "canonical": "#1f5fbf", "tonalRamp": ["#0c2a59", "#143f82", "#1f5fbf", "#4a82d6", "#86acE6", "#c7ddff", "#dfecff", "#eef5ff"] }
+    },
+    "typographyMeta": {
+      "headline": { "displayName": "Título de pantalla", "purpose": "Uno por pantalla." },
+      "title": { "displayName": "Título de panel", "purpose": "Encabeza cada panel o sección." },
+      "body": { "displayName": "Cuerpo", "purpose": "Texto, campos y tablas." },
+      "label": { "displayName": "Etiqueta", "purpose": "Fichas, encabezados de tabla y líneas secundarias del bloque de clase." }
+    },
+    "shadows": [
+      { "name": "clase-hover", "value": "0 6px 14px -8px #14285a80", "purpose": "La clase bajo el cursor se levanta 2 px." },
+      { "name": "clase-seleccionada", "value": "0 0 0 3px #ffffff, 0 0 0 6px #1f5fbf, 0 12px 20px -10px #14285a99", "purpose": "Clase tomada para mover." },
+      { "name": "dialogo", "value": "0 18px 50px -12px #14285a66", "purpose": "Diálogo de confirmación." }
+    ],
+    "motion": [
+      { "name": "paso", "value": "180ms cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Toda transición de estado: hover, foco, selección." }
+    ],
+    "breakpoints": [
+      { "name": "apila-columnas", "value": "1100px" },
+      { "name": "riel-arriba", "value": "860px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botón primario", "kind": "button", "refersTo": "boton-primario", "description": "La acción principal de la pantalla, una sola vez.",
+      "html": "<button class=\"ds-boton-primario\">Generar horario</button>",
+      "css": ".ds-boton-primario { min-height: 42px; padding: 7px 16px; border: 1.5px solid #ff7a45; border-radius: 12px; background: #ff7a45; color: #1b2b4b; font: 700 1rem 'Baloo 2', system-ui, sans-serif; cursor: pointer; transition: background 180ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-boton-primario:hover { background: #f2622a; border-color: #f2622a; } .ds-boton-primario:focus-visible { outline: 3px solid #1f5fbf; outline-offset: 2px; }"
+    },
+    {
+      "name": "Botón", "kind": "button", "refersTo": "boton", "description": "Acciones secundarias.",
+      "html": "<button class=\"ds-boton\">Imprimir o PDF</button>",
+      "css": ".ds-boton { min-height: 42px; padding: 7px 16px; border: 1.5px solid #9db4d9; border-radius: 12px; background: #fff; color: #1b2b4b; font: 700 1rem 'Baloo 2', system-ui, sans-serif; cursor: pointer; transition: border-color 180ms; } .ds-boton:hover { background: #f2f7fe; border-color: #1f5fbf; } .ds-boton:focus-visible { outline: 3px solid #1f5fbf; outline-offset: 2px; }"
+    },
+    {
+      "name": "Bloque de clase", "kind": "custom", "refersTo": "clase", "description": "Una hora de clase: color del área, lo principal en negrita.",
+      "html": "<button class=\"ds-clase\"><b>Matemáticas</b><span>Gloria Inés Arango</span><span>Aula 110</span></button>",
+      "css": ".ds-clase { display: flex; flex-direction: column; gap: 1px; width: 180px; min-height: 74px; padding: 8px 10px; border: 0; border-radius: 12px; background: #ff7a45; color: #1b2b4b; text-align: left; font-family: 'Baloo 2', system-ui, sans-serif; cursor: pointer; transition: transform 180ms, box-shadow 180ms; } .ds-clase b { font-size: 1rem; line-height: 1.15; } .ds-clase span { font-size: 0.875rem; line-height: 1.2; } .ds-clase:hover { transform: translateY(-2px); box-shadow: 0 6px 14px -8px #14285a80; } .ds-clase:focus-visible { outline: 3px solid #1f5fbf; outline-offset: 2px; }"
+    },
+    {
+      "name": "Aviso de cruce", "kind": "custom", "refersTo": "panel", "description": "Banda de estado con ícono y texto.",
+      "html": "<div class=\"ds-aviso\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 3l10 18H2zM12 10v5M12 18h.01\"/></svg><span>Wilson Marín tiene 2 clases el jueves en la franja 3.</span></div>",
+      "css": ".ds-aviso { display: flex; gap: 10px; align-items: flex-start; padding: 11px 14px; border-radius: 12px; background: #ffe9e3; color: #1b2b4b; font: 500 1rem 'Baloo 2', system-ui, sans-serif; } .ds-aviso svg { flex: none; color: #b3261e; margin-top: 2px; }"
+    },
+    {
+      "name": "Ficha", "kind": "chip", "refersTo": "ficha", "description": "Estado corto en píldora.",
+      "html": "<span class=\"ds-ficha\">22/22</span>",
+      "css": ".ds-ficha { display: inline-flex; padding: 1px 10px; border-radius: 99px; background: #dff5e6; color: #17693d; font: 700 0.875rem 'Baloo 2', system-ui, sans-serif; }"
+    },
+    {
+      "name": "Ítem activo del riel", "kind": "nav", "refersTo": "riel-item-activo", "description": "Pantalla actual en la barra lateral.",
+      "html": "<div class=\"ds-riel\"><button class=\"ds-riel-item\">Colegio</button><button class=\"ds-riel-item ds-activo\">Horario</button></div>",
+      "css": ".ds-riel { display: flex; flex-direction: column; gap: 4px; width: 240px; padding: 14px; background: #14285a; } .ds-riel-item { text-align: left; padding: 11px 12px; border: 0; border-radius: 12px; background: transparent; color: #dce7fb; font: 600 1.0625rem 'Baloo 2', system-ui, sans-serif; cursor: pointer; } .ds-riel-item:hover { background: #21397a; color: #fff; } .ds-riel-item.ds-activo { background: #ffc93c; color: #1b2b4b; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "La cartelera del salón",
+    "overview": "El horario que todo el colegio conoce, pegado en la pared del salón en cartulina de colores, convertido en una herramienta para armarlo. Cada materia es un bloque de color pleno con letra redonda y gruesa. La estructura es la de cualquier programa de trabajo; el mundo solo aporta el color, la letra, la densidad y el bloque de clase.",
+    "keyCharacteristics": [
+      "Bloques de clase de color pleno, sin sombras, idénticos en las cuatro vistas, en el papel y en la leyenda.",
+      "Riel azul noche con el ítem activo en amarillo cartulina.",
+      "Una sola familia de letra, redonda, con cifras tabulares.",
+      "Avisos en bandas de color suave con ícono y texto; nunca solo color."
+    ],
+    "rules": [
+      { "name": "The Tinta Automática Rule", "body": "Sobre un color de área el texto es tinta o blanco, el que tenga más contraste. Todo color de la paleta debe dar al menos 4,5:1; hay una prueba que lo exige.", "section": "colors" },
+      { "name": "The Un Naranja Rule", "body": "El naranja primario aparece una vez por pantalla, en lo que la usuaria vino a hacer.", "section": "colors" }
+    ],
+    "dos": [
+      "Do: usar el color del área como relleno pleno del bloque de clase, igual en pantalla, papel y leyenda.",
+      "Do: acompañar todo estado con ícono o texto; el color nunca va solo.",
+      "Do: abrir cada pantalla con una frase guía en palabras del colegio.",
+      "Do: confirmar antes de borrar y decir qué más se borra con ello."
+    ],
+    "donts": [
+      "Don't: poner sombras a paneles ni usar degradados.",
+      "Don't: usar el naranja para algo que no sea la acción principal.",
+      "Don't: poner texto blanco sobre el naranja primario ni sobre cartulinas claras.",
+      "Don't: abrir un diálogo para editar; se edita en línea o en el panel de detalle.",
+      "Don't: introducir una segunda familia de letra."
+    ]
+  }
+}

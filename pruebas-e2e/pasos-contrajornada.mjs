@@ -1,0 +1,37 @@
+// Docente de horario intermedio con una materia en la tarde para un grupo de la mañana (contrajornada).
+const espera = (ms) => new Promise((r) => setTimeout(r, ms))
+const texto = (pagina) => pagina.evaluate(() => document.body.textContent)
+const comprobar = (ok, t) => console.log(`${ok ? 'OK   ' : 'FALLA'} ${t}`)
+const elegir = (pagina, inicioEtiqueta, valor) =>
+  pagina.evaluate((t, v) => {
+    const s = [...document.querySelectorAll('label.campo')].find((l) => l.textContent.startsWith(t)).querySelector('select')
+    Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set.call(s, v)
+    s.dispatchEvent(new Event('change', { bubbles: true }))
+  }, inicioEtiqueta, valor)
+
+export default async ({ pagina, clic, foto }) => {
+  await clic('Grupos, docentes y aulas', 'nav button')
+  await clic('Docentes', '[role=tab]')
+  await clic('Carlos Mario Giraldo', '.lista button')
+  await elegir(pagina, 'Jornada', 'ambas')
+  await espera(200)
+  await clic('Asignación académica', 'nav button')
+  await clic('Carlos Mario Giraldo', '.lista button')
+  await pagina.select('select[aria-label="Jornada de Tecnología e Informática en 6-1"]', 'tarde')
+  await espera(300)
+  await foto('107-asignacion-intermedio', false)
+  const t = await texto(pagina)
+  comprobar(t.includes('En la tarde: 2 h') && t.includes('En la mañana: 20 h'), 'la ficha cuenta las horas de la mañana y de la tarde')
+  await clic('Horario', 'nav button')
+  await clic('Generar horario')
+  await pagina.waitForFunction(() => /Cruces pendientes|No se pudo ubicar/.test(document.body.textContent), { timeout: 30000 })
+  await espera(400)
+  console.log('tras generar:', (await texto(pagina)).match(/Cruces pendientes · \d+|No se pudo ubicar[^.]*/)?.[0])
+  await clic('Por grupo', '[role=tab]')
+  await pagina.select('select[aria-label="Elegir grupo"]', await pagina.$eval('select[aria-label="Elegir grupo"]', (s) => [...s.options].find((o) => o.textContent === '6-1').value))
+  await espera(300)
+  const titulos = await pagina.evaluate(() => [...document.querySelectorAll('h4')].map((h) => h.textContent))
+  comprobar(titulos.includes('Jornada de la mañana') && titulos.includes('Jornada de la tarde'), 'el grupo 6-1 tiene tabla de la mañana y de la tarde')
+  await pagina.evaluate(() => [...document.querySelectorAll('h4')].find((h) => h.textContent === 'Jornada de la tarde')?.scrollIntoView())
+  await foto('108-grupo-contrajornada', false)
+}
