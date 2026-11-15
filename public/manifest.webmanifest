@@ -1,0 +1,17 @@
+{
+  "name": "Horarios escolares",
+  "short_name": "Horarios",
+  "description": "Arma el horario del colegio, resuelve incapacidades y reparte el acompañamiento de descansos.",
+  "lang": "es-CO",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#eaf2fb",
+  "theme_color": "#14285a",
+  "icons": [
+    { "src": "icono-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icono-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

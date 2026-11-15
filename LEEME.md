@@ -7,6 +7,9 @@ App para armar el horario del colegio (docente, grupo y aula), ajustarlo a mano 
 Haz doble clic en **`Horarios.html`**. Se abre en Chrome y funciona sin internet. No hay que instalar ni encender nada.
 
 La primera vez muestra un colegio de ejemplo. Cuando quieras empezar con el tuyo, toca **«Empezar con mi colegio»** arriba.
+- En el enlace publicado, la app se puede **instalar en el celular o el computador** (en Chrome: menú → «Instalar» o «Agregar a la pantalla de inicio») y abre aunque no haya internet; los datos siguen siendo los de ese dispositivo.
+- Funciona en Chrome, Edge, Firefox y Safari actualizados (desde 2022). En el computador, **Ctrl+Z** (Cmd+Z en Mac) deshace el último cambio.
+
 
 ## El orden para armar el horario
 

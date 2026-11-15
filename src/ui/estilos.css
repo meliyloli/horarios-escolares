@@ -256,14 +256,33 @@ button.celda { padding: 0; text-align: left; background: transparent; border: 0;
   .columnas, .maestro { grid-template-columns: minmax(0, 1fr); }
   .panel.pegado { position: static; max-height: none; }
 }
+/* Celular y tableta angosta: el menú pasa arriba, compacto, para que el contenido empiece pronto. */
 @media (max-width: 860px) {
   .app { grid-template-columns: minmax(0, 1fr); }
-  .riel { position: static; height: auto; padding: 14px; }
-  .riel nav { flex-direction: row; overflow-x: auto; padding-bottom: 4px; }
-  .riel nav button { white-space: nowrap; }
-  .riel .pie { flex-direction: row; flex-wrap: wrap; align-items: center; margin-top: 6px; padding-top: 6px; }
-  .contenido { padding: 20px 16px 40px; }
+  .riel { position: static; height: auto; padding: 10px 12px 8px; gap: 6px; }
+  .riel h1 { font-size: 1.25rem; padding: 0 6px; }
+  .riel .colegio { padding: 0 6px 4px; font-size: 0.875rem; }
+  .riel nav { flex-direction: row; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .riel nav::-webkit-scrollbar { display: none; }
+  .riel nav button { white-space: nowrap; padding: 8px 12px; font-size: 1rem; }
+  .riel nav button.etapa { margin-top: 0; }
+  .riel nav button.etapa::before { display: none; }
+  .riel .pie { flex-direction: row; flex-wrap: wrap; align-items: center; margin-top: 2px; padding-top: 6px; gap: 6px; }
+  .riel .pie p:not(.recordatorio) { display: none; }
+  .riel .pie .recordatorio { flex: 1 1 100%; }
+  .contenido { padding: 16px 16px 40px; gap: 16px; }
+  .cabecera h2 { font-size: 1.625rem; }
+  /* Botones que iban unidos se separan y envuelven. */
+  .grupo-botones { display: flex; flex-wrap: wrap; gap: 8px; }
+  .grupo-botones > *, .grupo-botones > *:first-child, .grupo-botones > *:last-child { border-radius: var(--radio); margin-left: 0; }
+  .horario { gap: 4px; }
 }
+/* El horario entero se desliza de lado cuando no cabe; el número de franja queda fijo. */
+.horario-caja { overflow-x: auto; padding-bottom: 4px; }
+.horario-caja .horario .franja { position: sticky; left: 0; z-index: 1; background: var(--fondo); }
+/* Salto al contenido para quien navega con teclado o lector de pantalla. */
+.saltar { position: absolute; left: 12px; top: -48px; z-index: 60; padding: 8px 14px; border-radius: var(--radio-chico); background: var(--tinta); color: #fff; font-weight: 700; transition: top var(--paso); }
+.saltar:focus { top: 12px; }
 
 .subpanel { display: flex; flex-direction: column; gap: 12px; padding: 16px 18px; border: 1.5px solid var(--linea); border-radius: var(--radio); background: #f6f9fe; }
 .borradores { padding: 6px 8px 6px 14px; gap: 8px; }

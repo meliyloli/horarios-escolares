@@ -81,7 +81,12 @@ export const claveDocente = (d: Docente, dia: number, franja: number, j: Jornada
 export const diasVecinos = (dia: number, dias: Ciclo): number[] =>
   [dia - 1, dia + 1].filter((d) => d >= 1 && d <= dias)
 
-export const nuevoId = (): Id => crypto.randomUUID().slice(0, 8)
+/** Un id corto al azar. Sin `randomUUID` (navegadores viejos o páginas sin https) usa `getRandomValues`. */
+export const nuevoId = (): Id => {
+  if (typeof crypto.randomUUID === 'function') return crypto.randomUUID().slice(0, 8)
+  const bytes = crypto.getRandomValues(new Uint8Array(4))
+  return [...bytes].map((b) => b.toString(16).padStart(2, '0')).join('')
+}
 
 const SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
 /** "Lunes"… en ciclo de 5 días; "Día 1"… en ciclo de 10. */

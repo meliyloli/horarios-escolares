@@ -88,6 +88,22 @@ function Marco({ exigirCodigo }: { exigirCodigo: boolean }) {
     history.replaceState(null, '', `#${p}`)
     scrollTo?.({ top: 0 })
   }
+  // El título de la pestaña dice dónde estás y de qué colegio: con varias pestañas abiertas se distinguen.
+  useEffect(() => {
+    document.title = `${PANTALLAS.find(([id]) => id === pantalla)?.[1] ?? 'Horarios'} · ${estado.colegio.nombre || 'Horarios escolares'}`
+  }, [pantalla, estado.colegio.nombre])
+  // Ctrl+Z (Cmd+Z en Mac) deshace el último cambio cuando no se está escribiendo en un campo.
+  useEffect(() => {
+    const alTeclear = (ev: KeyboardEvent) => {
+      const enCampo = (ev.target as HTMLElement | null)?.closest('input, textarea, select, [contenteditable]')
+      if ((ev.ctrlKey || ev.metaKey) && !ev.shiftKey && ev.key.toLowerCase() === 'z' && !enCampo && puedeDeshacer) {
+        ev.preventDefault()
+        deshacer()
+      }
+    }
+    addEventListener('keydown', alTeclear)
+    return () => removeEventListener('keydown', alTeclear)
+  }, [deshacer, puedeDeshacer])
 
   // Solo cuando cambian los datos (no en cada aviso o cambio de pantalla).
   const cruces = useMemo(() => detectarCruces(estado).length, [estado])
@@ -134,6 +150,7 @@ function Marco({ exigirCodigo }: { exigirCodigo: boolean }) {
 
   return (
     <div className="app">
+      <a className="saltar" href="#contenido">Ir al contenido</a>
       <aside className="riel">
         <h1>Horarios escolares</h1>
         <p className="colegio">
@@ -158,7 +175,7 @@ function Marco({ exigirCodigo }: { exigirCodigo: boolean }) {
           ) : (
             <p>Último respaldo: {estado.ultimoRespaldo}</p>
           )}
-          <button className="boton chico" onClick={deshacer} disabled={!puedeDeshacer}><Icono nombre="deshacer" tamano={18} />Deshacer último cambio</button>
+          <button className="boton chico" onClick={deshacer} disabled={!puedeDeshacer} title="También con Ctrl+Z"><Icono nombre="deshacer" tamano={18} />Deshacer último cambio</button>
           <button className={`boton chico ${diasSinRespaldo(estado.ultimoRespaldo) > 7 ? 'resaltado' : ''}`} onClick={guardarRespaldo}><Icono nombre="bajar" tamano={18} />Guardar respaldo</button>
           <button className="boton chico" onClick={() => archivo.current?.click()}><Icono nombre="subir" tamano={18} />Abrir respaldo</button>
           <input
@@ -170,7 +187,7 @@ function Marco({ exigirCodigo }: { exigirCodigo: boolean }) {
           />
         </div>
       </aside>
-      <main className="contenido">
+      <main className="contenido" id="contenido" tabIndex={-1}>
         {porRecuperar && (
           <Aviso
             tipo="error"

@@ -26,7 +26,8 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-      - run: mkdir sitio && cp dist/index.html sitio/index.html
+      # La página, más el manifiesto, los íconos y el caché para instalarla y abrirla sin internet.
+      - run: mkdir sitio && cp -r dist/. sitio/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
