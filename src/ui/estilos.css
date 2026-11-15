@@ -273,3 +273,19 @@ a.boton { text-decoration: none; }
   .riel nav button { padding-top: 8px; padding-bottom: 8px; }
   .riel .pie { padding-top: 10px; gap: 6px; }
 }
+
+/* Incapacidades: una pregunta por docente ausente y el resumen para enviar. */
+.decision { display: flex; flex-direction: column; gap: 12px; margin: 0; padding: 14px 16px; border: 1.5px solid var(--linea); border-radius: var(--radio); }
+.decision legend { padding: 0 6px; font-weight: 800; font-size: 1.0625rem; }
+.decision legend .suave { font-weight: 500; font-size: 0.9375rem; margin-left: 6px; }
+.decision .opciones { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.decision .resultado { list-style: none; margin: 0; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; border-radius: var(--radio-chico); background: #f6f9fe; border: 1.5px solid var(--linea); }
+.decision .resultado li { display: flex; gap: 8px; align-items: baseline; }
+.decision .resultado li svg { flex: none; color: var(--bien); position: relative; top: 2px; }
+.decision .resultado li.pendiente svg { color: var(--aviso); }
+.decision .resultado li.pendiente { color: var(--aviso); }
+.rejilla-mensajes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+textarea.mensaje { width: 100%; padding: 10px 12px; border: 1.5px solid var(--linea-fuerte); border-radius: var(--radio-chico); background: #fff; color: var(--tinta); font: inherit; font-size: 0.9375rem; line-height: 1.45; resize: vertical; field-sizing: content; min-height: 8rem; max-height: 28rem; }
+details.a-mano { border-top: 1.5px solid var(--linea); padding-top: 10px; }
+details.a-mano > summary { cursor: pointer; font-weight: 700; color: var(--seleccion); padding: 4px 0; }
+details.a-mano[open] > summary { margin-bottom: 10px; }

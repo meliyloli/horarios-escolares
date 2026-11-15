@@ -107,9 +107,21 @@ export interface Clase {
   fijada: boolean
 }
 
+/**
+ * Cómo se cubre a un docente ausente: con el reemplazo que más convenga, con uno elegido, o sin reemplazo.
+ * `preferencia` dice qué hacer con las horas que quedan sin docente: que el grupo llegue tarde, salga temprano o quedan donde están.
+ */
+export interface DecisionAusencia {
+  docenteId: Id
+  modo: 'conviene' | 'elegido' | 'reorganizar'
+  elegidoId?: Id
+  preferencia?: 'llegaTarde' | 'saleTemprano' | 'quedan'
+}
+
 export interface AjusteDia {
   fecha: string
   diaCiclo: number
+  decisiones?: DecisionAusencia[]
   ausencias: { docenteId: Id; franjas: number[] }[]
   reemplazos: { claseId: Id; docenteId: Id }[]
   movimientos: { claseId: Id; franja: number }[]

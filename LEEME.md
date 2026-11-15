@@ -17,7 +17,12 @@ La primera vez muestra un colegio de ejemplo. Cuando quieras empezar con el tuyo
 5. **Asignación académica.** Qué horas dicta cada docente a cada grupo. «Por docente» muestra su carga, permite agregarle materias o grupos en la última fila y cambiarle el nombre («Cambiar nombre»). «Por grupo» muestra cada materia del grupo con sus docentes, si está completa, si le faltan o le sobran horas, y permite asignar ahí lo que falta. La app avisa cuando dos docentes comparten una materia en un grupo (y si sus horas suman la intensidad) y cuando un grupo pasa de 30 horas por semana en bachillerato o de 25 en primaria. También se puede importar de un Word o PDF.
 6. **Horario.** «Generar horario». Luego puedes mover clases, fijarlas, imprimir, descargar el PDF y exportar a Excel.
 7. **Acompañamiento.** Las zonas que se cuidan en los descansos y quién las acompaña cada día (ver abajo).
-8. **Incapacidades.** El día que alguien falta: registrar la ausencia, elegir reemplazos o reorganizar el día. Si esa persona acompañaba una zona en un descanso, la app lo avisa y sugiere quién puede cubrirla.
+8. **Incapacidades.** El día que alguien falta se registra la ausencia y la app pregunta cómo cubrirla:
+   - **Con el reemplazo que más convenga:** elige en cada hora a alguien libre, primero de la misma área, repartiendo entre quienes menos han cubierto.
+   - **Ya tengo a alguien:** se elige el docente (la lista dice en cuántas de esas horas está libre) y cubre todas las que pueda.
+   - **Sin reemplazo:** pregunta si se prefiere que el grupo **llegue tarde** o **salga temprano**, y corre ese día las clases de otros docentes. Si lo preferido no se puede sin cruzar a nadie, hace lo otro y lo dice.
+
+   Para las horas que nadie puede cubrir también pregunta qué se prefiere. Debajo de cada pregunta se ve cómo queda cada grupo, y abajo está el **resumen para enviar**: uno completo para el **correo institucional** (quién falta, quién reemplaza, qué clases cambian de hora, qué grupos llegan tarde o salen temprano, descansos sin acompañar) y uno corto para el **WhatsApp de las familias** (solo qué grupos entran tarde o salen temprano). Se copian con un botón o se abren directo en el correo o en WhatsApp. «Ajustar a mano» permite cambiar clase por clase.
 
 ## Media técnica
 

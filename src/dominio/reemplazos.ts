@@ -242,7 +242,8 @@ export const normalizarAjuste = (e: Estado, aj: AjusteDia): AjusteDia => {
   })
   // Los movimientos de cada grupo se conservan solo si siguen siendo una reorganización válida de ese grupo.
   const propios = aj.movimientos.filter((m) => base.has(m.claseId))
-  let limpio: AjusteDia = { ...aj, ausencias, gruposAusentes, reemplazos, movimientos: [] }
+  const decisiones = aj.decisiones?.filter((d) => ausencias.some((a) => a.docenteId === d.docenteId) && (!d.elegidoId || docentes.has(d.elegidoId)))
+  let limpio: AjusteDia = { ...aj, ausencias, gruposAusentes, reemplazos, movimientos: [], ...(decisiones ? { decisiones } : {}) }
   for (const grupoId of new Set(propios.map((m) => base.get(m.claseId)!.grupoId))) {
     const suyos = propios.filter((m) => base.get(m.claseId)!.grupoId === grupoId)
     if (opcionesReorganizar(e, limpio, grupoId).some((o) => llaveMovimientos(o.movimientos) === llaveMovimientos(suyos)))

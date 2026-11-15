@@ -71,6 +71,7 @@ const completar = (e: Estado): Estado => {
         fecha: aj.fecha, diaCiclo: numero(aj.diaCiclo, 1), ausencias: lista(aj.ausencias) as Estado['ajustes'][0]['ausencias'],
         reemplazos: lista(aj.reemplazos) as Estado['ajustes'][0]['reemplazos'], movimientos: lista(aj.movimientos) as Estado['ajustes'][0]['movimientos'],
         gruposAusentes: lista(aj.gruposAusentes) as string[],
+        ...(Array.isArray(aj.decisiones) ? { decisiones: aj.decisiones } : {}),
       }]
     }),
   }

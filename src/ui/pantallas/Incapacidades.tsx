@@ -1,11 +1,12 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { turnosSinCubrir } from '../../dominio/acompanamiento'
+import { fechaLarga, horasQuePuedeCubrir, resolverDia, resumenDia } from '../../dominio/novedades'
 import {
   ajusteDe, ajusteVacio, aplicarReorganizacion, candidatosReemplazo, diaCicloDeFecha, guardarAjuste, impactoAjuste,
   normalizarAjuste, opcionesReorganizar, puedeFaltarGrupo, registroHorasCubiertas, sesionesDelDia, type Candidato, type OpcionReorganizar,
 } from '../../dominio/reemplazos'
 import { diasHorario, FRANJAS, nombreDia, nombreGrupo } from '../../dominio/tiempo'
-import type { AjusteDia, Id } from '../../dominio/tipos'
+import type { AjusteDia, DecisionAusencia, Id } from '../../dominio/tipos'
 import type { Pantalla } from '../App'
 import { colorDeArea } from '../colores'
 import { Aviso, Campo, Icono, Vacio } from '../componentes'
@@ -19,10 +20,16 @@ const proximoDiaDeClase = () => {
   while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1)
   return d.toLocaleDateString('sv')
 }
-const fechaLarga = (fecha: string) => {
-  const texto = new Date(`${fecha}T12:00:00`).toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })
-  return texto[0].toUpperCase() + texto.slice(1)
-}
+const MODOS: [DecisionAusencia['modo'], string, string][] = [
+  ['conviene', 'Con el reemplazo que más convenga', 'La app elige en cada hora a alguien libre, primero de la misma área, y reparte entre quienes menos han cubierto.'],
+  ['elegido', 'Ya tengo a alguien', 'Cubre todas las horas en que esté libre.'],
+  ['reorganizar', 'Sin reemplazo', 'El grupo llega tarde o sale temprano: se corren las clases de otros docentes ese día.'],
+]
+const PREFERENCIAS: [NonNullable<DecisionAusencia['preferencia']>, string][] = [
+  ['llegaTarde', 'Que lleguen tarde'],
+  ['saleTemprano', 'Que salgan temprano'],
+  ['quedan', 'Dejarlas donde están (el grupo se queda en el colegio)'],
+]
 
 interface Props {
   alIr: (p: Pantalla) => void
@@ -82,7 +89,7 @@ export function Incapacidades({ alIr, alVerDia, borrador, alCambiarBorrador }: P
     <>
       <header className="cabecera">
         <h2>Incapacidades y reemplazos</h2>
-        <p className="guia">Registra quién falta un día. La app lista las clases que quedan sin docente y propone reemplazos o reorganizar el día. Tú eliges; el horario base no cambia.</p>
+        <p className="guia">Registra quién falta un día y elige cómo cubrirlo: con un reemplazo o haciendo que el grupo llegue tarde o salga temprano. La app arma el resumen para el correo y el WhatsApp de las familias. El horario base no cambia.</p>
       </header>
       <div className="maestro">
         <div className="pila">
@@ -163,6 +170,34 @@ export function Incapacidades({ alIr, alVerDia, borrador, alCambiarBorrador }: P
     </>
   )
 
+  /** El resumen del día en texto, listo para el correo institucional y para el WhatsApp de las familias. */
+  function resumen(aj: AjusteDia) {
+    const { docentes, familias } = resumenDia(estado, aj)
+    const asunto = `Novedades del ${fechaLarga(aj.fecha).toLowerCase()}`
+    const copiar = (texto: string) =>
+      navigator.clipboard?.writeText(texto).then(() => avisar('Copiado. Pégalo donde lo vas a enviar.'), () => avisar('No se pudo copiar: selecciona el texto y cópialo.'))
+    const bloque = (titulo: string, texto: string, envio: ReactNode) => (
+      <div className="pila" style={{ gap: 8 }}>
+        <h4 style={{ margin: 0 }}>{titulo}</h4>
+        <textarea className="mensaje" readOnly value={texto} rows={Math.min(14, texto.split('\n').length + 1)} aria-label={titulo} onFocus={(ev) => ev.target.select()} />
+        <div className="fila">
+          <button className="boton chico" onClick={() => copiar(texto)}>Copiar</button>
+          {envio}
+        </div>
+      </div>
+    )
+    return (
+      <section className="subpanel" aria-label="Resumen para enviar">
+        <h3 style={{ margin: 0 }}>Resumen para enviar</h3>
+        {sinGuardar(aj) && <p className="suave">Así quedaría el día. Toca «Confirmar y guardar» antes de enviarlo.</p>}
+        <div className="rejilla-mensajes">
+          {bloque('Para docentes (correo institucional)', docentes, <a className="boton chico" href={`mailto:?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(docentes)}`}>Abrir en el correo</a>)}
+          {bloque('Para familias (WhatsApp)', familias, <a className="boton chico" href={`https://wa.me/?text=${encodeURIComponent(familias)}`} target="_blank" rel="noreferrer">Enviar por WhatsApp</a>)}
+        </div>
+      </section>
+    )
+  }
+
   // Función y no componente, para no desmontar los campos en cada cambio.
   function editorDelDia(aj: AjusteDia) {
     const delDia = sesionesDelDia(estado, { ...aj, gruposAusentes: [] })
@@ -205,6 +240,89 @@ export function Incapacidades({ alIr, alVerDia, borrador, alCambiarBorrador }: P
           ))}
         </div>
 
+        {aj.ausencias.map((a) => {
+          const dec = aj.decisiones?.find((d) => d.docenteId === a.docenteId)
+          const suyas = delDia.filter((s) => s.docenteOriginalId === a.docenteId && (s.situacion === 'sinDocente' || s.situacion === 'reemplazo'))
+          if (suyas.length === 0) return <p key={a.docenteId} className="suave">{nombre(a.docenteId)} no tiene clases en esas horas: no hay nada que cubrir.</p>
+          const pendientes = suyas.filter((s) => s.situacion === 'sinDocente').length
+          const puede = horasQuePuedeCubrir(estado, aj, a.docenteId)
+          const decidir = (cambio: Partial<DecisionAusencia>) => {
+            const nueva: DecisionAusencia = { docenteId: a.docenteId, modo: 'conviene', ...dec, ...cambio }
+            setBorrador(resolverDia(estado, { ...aj, decisiones: [...(aj.decisiones ?? []).filter((d) => d.docenteId !== a.docenteId), nueva] }))
+          }
+          const nombreRadio = `modo-${a.docenteId}`
+          return (
+            <fieldset key={a.docenteId} className="decision">
+              <legend>¿Cómo cubrimos a {nombre(a.docenteId)}? <span className="suave">{suyas.length} {suyas.length === 1 ? 'hora' : 'horas'} de clase</span></legend>
+              <div className="opciones">
+                {MODOS.map(([modo, titulo, detalle]) => (
+                  <label key={modo} className="opcion">
+                    <input type="radio" name={nombreRadio} checked={dec?.modo === modo} onChange={() => decidir({ modo })} />
+                    <span><b>{titulo}</b>{detalle}</span>
+                  </label>
+                ))}
+              </div>
+              {dec?.modo === 'elegido' && (
+                <Campo etiqueta="¿Quién lo reemplaza?">
+                  <select value={dec.elegidoId ?? ''} onChange={(ev) => decidir({ elegidoId: ev.target.value || undefined })}>
+                    <option value="">Elegir docente…</option>
+                    {[...puede].sort((x, y) => y[1] - x[1] || nombre(x[0]).localeCompare(nombre(y[0]))).map(([id, n]) => (
+                      <option key={id} value={id}>{nombre(id)} · libre en {n} de {suyas.length} {suyas.length === 1 ? 'hora' : 'horas'}</option>
+                    ))}
+                  </select>
+                </Campo>
+              )}
+              {dec && (dec.modo === 'reorganizar' || pendientes > 0) && (dec.modo !== 'elegido' || dec.elegidoId) && (
+                <div className="pila" style={{ gap: 6 }}>
+                  <b>{dec.modo === 'reorganizar' ? '¿Prefieres que el grupo llegue tarde o que salga temprano?' : `${pendientes === 1 ? 'Queda 1 hora' : `Quedan ${pendientes} horas`} que nadie puede cubrir. ¿Qué prefieres?`}</b>
+                  <div className="fila" role="radiogroup" aria-label={`Preferencia para las horas de ${nombre(a.docenteId)}`}>
+                    {PREFERENCIAS.filter(([p]) => dec.modo !== 'reorganizar' || p !== 'quedan').map(([p, texto]) => (
+                      <label key={p} className="marca"><input type="radio" name={`pref-${a.docenteId}`} checked={dec.preferencia === p} onChange={() => decidir({ preferencia: p })} />{texto}</label>
+                    ))}
+                  </div>
+                  <p className="suave">Si lo que prefieres no se puede sin cruzar a otro docente, la app hace lo otro y lo dice en el resumen.</p>
+                </div>
+              )}
+              {dec && (
+                <ul className="resultado" aria-label={`Cómo queda cada grupo de ${nombre(a.docenteId)}`}>
+                  {[...new Set(suyas.map((s) => s.grupoId))].sort((x, y) => nombreDe(x).localeCompare(nombreDe(y), 'es', { numeric: true })).map((g) => {
+                    const del = suyas.filter((s) => s.grupoId === g)
+                    const cubiertas = del.filter((s) => s.situacion === 'reemplazo')
+                    const sinDocente = del.length - cubiertas.length
+                    const dadas = delDia.filter((s) => s.grupoId === g && s.situacion !== 'sinDocente').map((s) => s.franja)
+                    const tarde = impacto.gruposLleganTarde.includes(g)
+                    const temprano = impacto.gruposSalenTemprano.includes(g)
+                    const quiso = dec.preferencia === 'llegaTarde' ? tarde : dec.preferencia === 'saleTemprano' ? temprano : true
+                    const partes = [
+                      cubiertas.length > 0 && `${cubiertas.length === 1 ? 'la cubre' : 'las cubren'} ${[...new Set(cubiertas.map((s) => nombre(s.docenteId)))].join(' y ')}`,
+                      impacto.gruposAusentes.includes(g) && 'no asiste ese día',
+                      tarde && `llega tarde: entra a la ${Math.min(...dadas)}.ª hora`,
+                      temprano && `sale temprano: al terminar la ${Math.max(...dadas)}.ª hora`,
+                      sinDocente > 0 && !tarde && !temprano && !impacto.gruposAusentes.includes(g) && `${sinDocente === 1 ? 'queda 1 hora' : `quedan ${sinDocente} horas`} sin docente (el grupo se queda en el colegio)`,
+                    ].filter(Boolean)
+                    const pendiente = sinDocente > 0 && !tarde && !temprano && dec.preferencia !== 'quedan'
+                    return (
+                      <li key={g} className={pendiente ? 'pendiente' : undefined}>
+                        <Icono nombre={pendiente ? 'alerta' : 'bien'} tamano={16} />
+                        <span>
+                          <b>{nombreDe(g)}</b>: {partes.join('; ')}.
+                          {sinDocente > 0 && dec.preferencia && dec.preferencia !== 'quedan' && !quiso && (tarde || temprano
+                            ? ' Lo que preferías no se podía sin cruzar a otro docente.'
+                            : ' No se pueden correr sus clases sin cruzar a otro docente: elige un reemplazo para esas horas en «Ajustar a mano», abajo.')}
+                        </span>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </fieldset>
+          )
+        })}
+
+        {aj.ausencias.length > 0 && resumen(aj)}
+
+        <details className="a-mano">
+          <summary>Ajustar a mano, clase por clase</summary>
         {afectadas.length > 0 && (
           <>
             <h4>Clases sin docente</h4>
@@ -305,6 +423,8 @@ export function Incapacidades({ alIr, alVerDia, borrador, alCambiarBorrador }: P
           {impacto.gruposAusentes.length > 0 && <span className="ficha">Grupos que no asisten: {impacto.gruposAusentes.map(nombreDe).join(', ')}</span>}
           {impacto.docentesQueCambian.length > 0 && <span className="ficha">Docentes que cambian de clase: {impacto.docentesQueCambian.map(nombre).join(', ')}</span>}
         </div>
+
+        </details>
 
         {sinGuardar(aj)
           ? <Aviso>Este día tiene <b>cambios sin guardar</b>. Toca «Confirmar y guardar» para que queden.</Aviso>
