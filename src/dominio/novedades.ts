@@ -1,8 +1,8 @@
 // Lo que decide el coordinador cuando alguien falta, y el resumen del día para enviar a docentes y familias.
 import { turnosSinCubrir } from './acompanamiento'
 import { aplicarReorganizacion, candidatosReemplazo, impactoAjuste, normalizarAjuste, opcionesReorganizar, sesionesDelDia } from './reemplazos'
-import { claveDocente, dictaEn, FRANJAS, nombreGrupo } from './tiempo'
-import type { AjusteDia, Estado, Id } from './tipos'
+import { claveDocente, dictaEn, FRANJAS, horaDeFranja, nombreGrupo, reloj } from './tiempo'
+import type { AjusteDia, Estado, Id, Jornada } from './tipos'
 
 /** «Martes 17 de noviembre». */
 export const fechaLarga = (fecha: string) => {
@@ -83,28 +83,45 @@ export const resumenDia = (e: Estado, aj: AjusteDia): { docentes: string; famili
   const tarde = (id: Id) => (delDia.some((s) => s.grupoId === id && s.jornada === 'tarde') && e.grupos.some((g) => g.jornada === 'manana') ? ' (jornada de la tarde)' : '')
   const ordenGrupo = (a: Id, b: Id) => grupo(a).localeCompare(grupo(b), 'es', { numeric: true })
   const fecha = fechaLarga(aj.fecha)
+  const conAulas = e.colegio.modeloAula !== 'ninguna'
+  const aula = (id?: Id) => e.aulas.find((a) => a.id === id)?.nombre ?? 'sin aula'
+  const jornadaDe = (grupoId: Id): Jornada => delDia.find((s) => s.grupoId === grupoId)?.jornada ?? 'manana'
+  /** « (7:25 a. m.)» si el colegio escribió las horas de las franjas. */
+  const aLas = (j: Jornada, franja: number, cual: 'inicio' | 'fin' = 'inicio') => {
+    const h = horaDeFranja(e, j, franja)
+    return h ? ` (${reloj(h[cual])})` : ''
+  }
 
+  // Para las familias: con la hora de reloj si se conoce; si no, la hora de clase.
+  const entra = (id: Id) => {
+    const f = Math.min(...delGrupo(id))
+    const h = horaDeFranja(e, jornadaDe(id), f)
+    return h ? `ingresa a las ${reloj(h.inicio)} (${hora(f)} hora)${tarde(id)}` : `ingresa a la ${hora(f)} hora${tarde(id)}`
+  }
+  const sale = (id: Id) => {
+    const f = Math.max(...delGrupo(id))
+    const h = horaDeFranja(e, jornadaDe(id), f)
+    return h ? `sale a las ${reloj(h.fin)} (al terminar la ${hora(f)} hora)${tarde(id)}` : `sale al terminar la ${hora(f)} hora${tarde(id)}`
+  }
   const cambiosGrupo = [
-    ...impacto.gruposLleganTarde.map((id) => [id, `ingresa a la ${hora(Math.min(...delGrupo(id)))} hora${tarde(id)}`]),
-    ...impacto.gruposSalenTemprano.map((id) => [id, `sale al terminar la ${hora(Math.max(...delGrupo(id)))} hora${tarde(id)}`]),
+    ...impacto.gruposLleganTarde.map((id) => [id, entra(id)]),
+    ...impacto.gruposSalenTemprano.map((id) => [id, sale(id)]),
     ...impacto.gruposAusentes.map((id) => [id, 'no tiene clase este día']),
   ].sort((a, b) => ordenGrupo(a[0], b[0]))
-  const conCambio = new Set(cambiosGrupo.map(([id]) => id))
 
   const seccion = (titulo: string, lineas: string[]) => (lineas.length ? [`${titulo}:`, ...lineas.map((l) => `• ${l}`), ''] : [])
   const ausencias = aj.ausencias.map((a) => `Falta ${docente(a.docenteId)} (${a.franjas.length === FRANJAS ? 'todo el día' : `${lista(a.franjas.map(hora))} hora`}).`)
   const reemplazos = delDia
     .filter((s) => s.situacion === 'reemplazo')
     .sort((a, b) => a.franjaOriginal - b.franjaOriginal || ordenGrupo(a.grupoId, b.grupoId))
-    .map((s) => `${grupo(s.grupoId)}, ${hora(s.franjaOriginal)} hora, ${area(s.areaId)}: la cubre ${docente(s.docenteId)}.`)
+    .map((s) => {
+      const donde = !conAulas ? '' : `, en ${aula(s.aulaId)}${s.aulaId !== s.aulaOriginalId ? ` (antes ${aula(s.aulaOriginalId)})` : ''}`
+      return `${grupo(s.grupoId)}, ${hora(s.franja)} hora${aLas(s.jornada, s.franja)}, ${area(s.areaId)}: la cubre ${docente(s.docenteId)}${donde}.`
+    })
   const movidas = delDia
     .filter((s) => s.situacion === 'movida')
     .sort((a, b) => docente(a.docenteId).localeCompare(docente(b.docenteId)) || a.franjaOriginal - b.franjaOriginal)
-    .map((s) => `${docente(s.docenteId)}: ${area(s.areaId)} con ${grupo(s.grupoId)} pasa de la ${hora(s.franjaOriginal)} a la ${hora(s.franja)} hora.`)
-  const sinDocente = delDia
-    .filter((s) => s.situacion === 'sinDocente' && !conCambio.has(s.grupoId))
-    .sort((a, b) => a.franja - b.franja)
-    .map((s) => `${grupo(s.grupoId)}, ${hora(s.franja)} hora, ${area(s.areaId)}: sin docente (el grupo queda en el colegio).`)
+    .map((s) => `${docente(s.docenteId)}: ${area(s.areaId)} con ${grupo(s.grupoId)} pasa de la ${hora(s.franjaOriginal)}${aLas(s.jornada, s.franjaOriginal)} a la ${hora(s.franja)} hora${aLas(s.jornada, s.franja)}${conAulas ? `, en ${aula(s.aulaId)}` : ''}.`)
   const descansos = turnosSinCubrir(e, aj).map((t) => {
     const zona = e.acompanamiento?.zonas.find((z) => z.id === t.zonaId)?.nombre ?? 'Zona'
     return `${zona}, ${t.descanso === 1 ? 'primer' : 'segundo'} descanso: le tocaba a ${docente(t.ausente)}; ${t.sugerido ? `lo cubre ${docente(t.sugerido)}` : 'queda sin cubrir'}.`
@@ -117,7 +134,6 @@ export const resumenDia = (e: Estado, aj: AjusteDia): { docentes: string; famili
     ...seccion('Reemplazos', reemplazos),
     ...seccion('Clases que cambian de hora', movidas),
     ...seccion('Grupos', cambiosGrupo.map(([id, t]) => `${grupo(id)} ${t}.`)),
-    ...seccion('Horas sin docente', sinDocente),
     ...seccion('Acompañamiento en descansos', descansos),
     'El horario base no cambia; esto aplica solo ese día.',
   ].join('\n')

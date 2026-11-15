@@ -28,6 +28,8 @@ export interface Colegio {
   ciclo: Ciclo
   modeloAula: ModeloAula
   reglas: Reglas
+  /** A qué hora empieza y termina cada franja (posición 0 = franja 1), en cada jornada. Sirve para los avisos a familias. */
+  horasFranjas?: Partial<Record<Jornada, { inicio: string; fin: string }[]>>
   /** El colegio tiene media técnica (es opcional). Si falta, la tiene si ya hay algún programa. */
   mediaTecnica?: boolean
 }

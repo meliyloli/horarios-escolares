@@ -86,3 +86,16 @@ export const nuevoId = (): Id => crypto.randomUUID().slice(0, 8)
 const SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
 /** "Lunes"… en ciclo de 5 días; "Día 1"… en ciclo de 10. */
 export const nombreDia = (dia: number, dias: Ciclo): string => (dias === 5 && SEMANA[dia - 1]) || `Día ${dia}`
+
+/** «13:05» → «1:05 p. m.», como se escribe la hora en Colombia. */
+export const reloj = (hhmm: string): string => {
+  const [h, m] = hhmm.split(':').map(Number)
+  if (!Number.isFinite(h) || !Number.isFinite(m)) return hhmm
+  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'a. m.' : 'p. m.'}`
+}
+
+/** Inicio y fin de una franja en esa jornada, si el colegio las escribió. */
+export const horaDeFranja = (e: Estado, jornada: Jornada, franja: number): { inicio: string; fin: string } | undefined => {
+  const h = e.colegio.horasFranjas?.[jornada]?.[franja - 1]
+  return h?.inicio && h.fin ? h : undefined
+}

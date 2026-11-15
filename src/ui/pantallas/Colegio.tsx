@@ -1,9 +1,9 @@
 import { avisosAulas } from '../../dominio/cruces'
 import { cambiarCicloColegio } from '../../dominio/edicion'
 import { programasMT, quitarMediaTecnica } from '../../dominio/mediaTecnica'
-import { tieneMediaTecnica } from '../../dominio/tiempo'
+import { FRANJAS, jornadaDeAsignacion, reloj, tieneMediaTecnica } from '../../dominio/tiempo'
 import { estadoVacio } from '../../dominio/ejemplo'
-import type { Ciclo, ModeloAula, Reglas } from '../../dominio/tipos'
+import type { Ciclo, Jornada, ModeloAula, Reglas } from '../../dominio/tipos'
 import { aNumero, Aviso, Campo, Icono } from '../componentes'
 import { useEstado } from '../estado'
 
@@ -15,6 +15,13 @@ const MODELOS: [ModeloAula, string, string][] = [
   ['libre', 'Aula fija para algunos, aula libre para los demás', 'Los docentes que marques tienen su aula. Los demás dictan en un aula que esté libre a esa hora, incluida la de un docente con aula fija cuando no tiene clase.'],
 ]
 
+/** Un horario común de 55 minutos con descansos de 30 y 20 minutos, para no escribir todo desde cero. */
+const TIPICO: Record<Jornada, [string, string][]> = {
+  manana: [['06:30', '07:25'], ['07:25', '08:20'], ['08:50', '09:45'], ['09:45', '10:40'], ['11:00', '11:55'], ['11:55', '12:50']],
+  tarde: [['12:30', '13:25'], ['13:25', '14:20'], ['14:50', '15:45'], ['15:45', '16:40'], ['17:00', '17:55'], ['17:55', '18:50']],
+}
+const NOMBRE_JORNADA: Record<Jornada, string> = { manana: 'Jornada de la mañana', tarde: 'Jornada de la tarde' }
+
 export function Colegio() {
   const { estado, cambiar, confirmar, avisar, guardarAhora } = useEstado()
   const { colegio } = estado
@@ -22,6 +29,16 @@ export function Colegio() {
   const colegioCon = (c: Partial<typeof colegio>) => cambiar((e) => ({ ...e, colegio: { ...e.colegio, ...c } }))
   const reglasCon = (r: Partial<Reglas>) => colegioCon({ reglas: { ...reglas, ...r } })
   const avisos = avisosAulas(estado)
+  // La tarde aparece si hay grupos, docentes o materias (media técnica, contrajornada) en esa jornada.
+  const jornadas: Jornada[] = estado.grupos.some((g) => g.jornada === 'tarde') || estado.docentes.some((d) => d.jornada !== 'manana') || estado.asignaciones.some((a) => jornadaDeAsignacion(estado, a) === 'tarde')
+    ? (estado.grupos.some((g) => g.jornada === 'manana') ? ['manana', 'tarde'] : ['tarde'])
+    : ['manana']
+  const horas = colegio.horasFranjas ?? {}
+  const horaCon = (j: Jornada, franja: number, cual: 'inicio' | 'fin', valor: string) => {
+    const lista = Array.from({ length: FRANJAS }, (_, i) => horas[j]?.[i] ?? { inicio: '', fin: '' })
+    lista[franja] = { ...lista[franja], [cual]: valor }
+    colegioCon({ horasFranjas: { ...horas, [j]: lista } })
+  }
   const bloques = reglas.bloques ?? { activa: false, primaria: false }
   const espaciar = reglas.espaciarMaterias ?? { activa: false, horas: 4 }
   const cambiarCiclo = (c: Ciclo) => {
@@ -70,6 +87,43 @@ export function Colegio() {
           </div>
           <p className="suave">Al cambiar el ciclo, las horas de la asignación académica se duplican o se dividen solas. Un grupo puede usar un ciclo distinto al del colegio; se cambia en la lista de grupos.</p>
         </fieldset>
+      </section>
+
+      <section className="panel" aria-labelledby="titulo-horas">
+        <h3 id="titulo-horas">Horas de las franjas</h3>
+        <p className="suave">A qué hora empieza y termina cada franja. Con esto, el aviso a las familias dice «ingresa a las 9:45 a. m.» en vez de «ingresa a la 4.ª hora».</p>
+        <div className="rejilla-mensajes">
+          {jornadas.map((j) => (
+            <div key={j} className="pila" style={{ gap: 8 }}>
+              <div className="fila">
+                <h4 style={{ margin: 0 }}>{NOMBRE_JORNADA[j]}</h4>
+                <button className="boton chico empuja" onClick={() => colegioCon({ horasFranjas: { ...horas, [j]: TIPICO[j].map(([inicio, fin]) => ({ inicio, fin })) } })}>
+                  Llenar con un horario típico
+                </button>
+              </div>
+              <table className="datos horas-franjas">
+                <thead><tr><th>Franja</th><th>Empieza</th><th>Termina</th></tr></thead>
+                <tbody>
+                  {Array.from({ length: FRANJAS }, (_, i) => {
+                    const h = horas[j]?.[i]
+                    const mal = !!h?.inicio && !!h.fin && h.fin <= h.inicio
+                    return (
+                      <tr key={i}>
+                        <td><b>{i + 1}.ª</b>{(i === 2 || i === 4) && <span className="detalle">después del descanso</span>}</td>
+                        <td><input type="time" aria-label={`Empieza la franja ${i + 1}, ${NOMBRE_JORNADA[j].toLowerCase()}`} value={h?.inicio ?? ''} onChange={(ev) => horaCon(j, i, 'inicio', ev.target.value)} /></td>
+                        <td>
+                          <input type="time" aria-label={`Termina la franja ${i + 1}, ${NOMBRE_JORNADA[j].toLowerCase()}`} value={h?.fin ?? ''} onChange={(ev) => horaCon(j, i, 'fin', ev.target.value)} aria-invalid={mal} />
+                          {mal && <span className="detalle error-texto">Termina antes de empezar</span>}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+              {horas[j]?.[0]?.inicio && horas[j]?.[FRANJAS - 1]?.fin && <p className="suave">De {reloj(horas[j]![0].inicio)} a {reloj(horas[j]![FRANJAS - 1].fin)}</p>}
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className="panel">

@@ -190,6 +190,12 @@ export function Incapacidades({ alIr, alVerDia, borrador, alCambiarBorrador }: P
       <section className="subpanel" aria-label="Resumen para enviar">
         <h3 style={{ margin: 0 }}>Resumen para enviar</h3>
         {sinGuardar(aj) && <p className="suave">Así quedaría el día. Toca «Confirmar y guardar» antes de enviarlo.</p>}
+        {!estado.colegio.horasFranjas && (
+          <p className="suave">
+            Para que el aviso diga la hora (por ejemplo «ingresa a las 9:45 a. m.»), escribe la hora de cada franja en{' '}
+            <button className="enlace" onClick={() => alIr('colegio')}>Colegio</button>.
+          </p>
+        )}
         <div className="rejilla-mensajes">
           {bloque('Para docentes (correo institucional)', docentes, <a className="boton chico" href={`mailto:?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(docentes)}`}>Abrir en el correo</a>)}
           {bloque('Para familias (WhatsApp)', familias, <a className="boton chico" href={`https://wa.me/?text=${encodeURIComponent(familias)}`} target="_blank" rel="noreferrer">Enviar por WhatsApp</a>)}

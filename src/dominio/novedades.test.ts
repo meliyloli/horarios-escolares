@@ -68,12 +68,38 @@ describe('resumen para enviar', () => {
     expect(familias).not.toContain('Dora')
   })
 
-  it('a docentes: quién falta, quién reemplaza y qué clases se movieron de franja', () => {
+  it('a docentes: quién falta, quién reemplaza y qué clases se movieron de hora, siempre con el aula', () => {
     const e = colegio()
     const conReemplazo = resumenDia(e, resolverDia(e, dia({ modo: 'conviene' }))).docentes
     expect(conReemplazo).toContain('Falta Dora (todo el día)')
-    expect(conReemplazo).toContain('7-1, 5.ª hora, Matemáticas: la cubre Ximena')
+    expect(conReemplazo).toContain('7-1, 5.ª hora, Matemáticas: la cubre Ximena, en aula-a.')
     const movido = resumenDia(e, resolverDia(e, dia({ modo: 'reorganizar', preferencia: 'llegaTarde' }))).docentes
-    expect(movido).toContain('Zoe: Lengua Castellana con 7-1 pasa de la 2.ª a la 5.ª hora')
+    expect(movido).toContain('Zoe: Lengua Castellana con 7-1 pasa de la 2.ª a la 5.ª hora, en aula-a.')
+  })
+
+  it('a docentes no dice qué horas quedan sin docente', () => {
+    const e = colegio()
+    const { docentes } = resumenDia(e, resolverDia(e, dia({ modo: 'elegido', elegidoId: 'x' })))
+    expect(docentes).not.toMatch(/sin docente/i)
+  })
+
+  it('si el reemplazo tiene aula fija, la clase va a su aula y el mensaje dice de cuál cambia', () => {
+    const e = colegio()
+    e.colegio.modeloAula = 'mixto'
+    e.aulas.push({ id: 'lab', nombre: 'Laboratorio' })
+    e.docentes.find((d) => d.id === 'x')!.aulaId = 'lab'
+    const r = resolverDia(e, dia({ modo: 'conviene' }))
+    expect(sesionesDelDia(e, r).find((s) => s.claseId === 'da5')?.aulaId).toBe('lab')
+    expect(resumenDia(e, r).docentes).toContain('7-1, 5.ª hora, Matemáticas: la cubre Ximena, en Laboratorio (antes aula-a).')
+  })
+
+  it('con las horas de cada franja, las familias reciben la hora de entrada o salida', () => {
+    const e = colegio()
+    e.colegio.horasFranjas = { manana: [['6:30', '7:25'], ['7:25', '8:20'], ['8:50', '9:45'], ['9:45', '10:40'], ['11:00', '11:55'], ['11:55', '12:50']].map(([inicio, fin]) => ({ inicio, fin })) }
+    const tarde = resumenDia(e, resolverDia(e, dia({ modo: 'reorganizar', preferencia: 'llegaTarde' })))
+    expect(tarde.familias).toContain('Grupo 7-1: ingresa a las 9:45 a. m. (4.ª hora).')
+    expect(tarde.docentes).toContain('pasa de la 2.ª (7:25 a. m.) a la 5.ª hora (11:00 a. m.)')
+    const temprano = resumenDia(e, resolverDia(e, dia({ modo: 'reorganizar', preferencia: 'saleTemprano' })))
+    expect(temprano.familias).toContain('Grupo 8-1: sale a las 8:20 a. m. (al terminar la 2.ª hora).')
   })
 })

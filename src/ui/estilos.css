@@ -289,3 +289,11 @@ textarea.mensaje { width: 100%; padding: 10px 12px; border: 1.5px solid var(--li
 details.a-mano { border-top: 1.5px solid var(--linea); padding-top: 10px; }
 details.a-mano > summary { cursor: pointer; font-weight: 700; color: var(--seleccion); padding: 4px 0; }
 details.a-mano[open] > summary { margin-bottom: 10px; }
+
+.horas-franjas { max-width: 30rem; }
+.horas-franjas td { vertical-align: middle; }
+.horas-franjas .detalle { display: block; font-size: 0.875rem; color: var(--suave); font-weight: 500; }
+.horas-franjas .error-texto { color: var(--peligro); font-weight: 700; }
+input[type='time'] { min-height: 42px; padding: 6px 11px; border: 1.5px solid var(--linea-fuerte); border-radius: var(--radio-chico); background: #fff; font: inherit; font-weight: 500; }
+input[aria-invalid='true'] { border-color: var(--peligro); }
+button.enlace { padding: 0; border: 0; background: none; color: var(--seleccion); font: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }

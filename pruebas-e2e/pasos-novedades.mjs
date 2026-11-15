@@ -2,6 +2,11 @@
 const espera = (ms) => new Promise((r) => setTimeout(r, ms))
 const comprobar = (ok, t) => console.log(`${ok ? 'OK   ' : 'FALLA'} ${t}`)
 export default async ({ pagina, clic, foto }) => {
+  await clic('Colegio', 'nav button')
+  await clic('Llenar con un horario típico')
+  await espera(200)
+  await pagina.evaluate(() => document.querySelector('#titulo-horas')?.scrollIntoView())
+  await foto('129-horas-franjas', false)
   await clic('Horario', 'nav button')
   await clic('Generar horario')
   await pagina.waitForFunction(() => /Cruces pendientes/.test(document.body.textContent), { timeout: 30000 })
@@ -25,7 +30,9 @@ export default async ({ pagina, clic, foto }) => {
   await espera(400)
   const textos = await pagina.$$eval('textarea.mensaje', (xs) => xs.map((x) => x.value))
   console.log(textos.join('\n-----\n'))
-  comprobar(textos[1]?.includes('ingresa a la'), 'el mensaje para familias dice qué grupos entran tarde')
+  comprobar(/ingresa a las \d+:\d\d [ap]\. m\./.test(textos[1] ?? ''), 'el mensaje para familias dice a qué hora entran')
+  comprobar(!/sin docente/i.test(textos[0] ?? ''), 'el mensaje a docentes no lista horas sin docente')
+  comprobar(/, en [^.]+\./.test(textos[0] ?? ''), 'el mensaje a docentes trae el aula')
   await pagina.evaluate(() => document.querySelector('fieldset.decision')?.scrollIntoView())
   await foto('131-ausencia-resumen', false)
 }

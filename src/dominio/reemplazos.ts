@@ -7,6 +7,7 @@ export type EstadoSesion = 'normal' | 'reemplazo' | 'movida' | 'sinDocente' | 'g
 /** Una sesión del día con sus ajustes: `docenteId` y `franja` son los efectivos de esa fecha. */
 export interface SesionDia extends Sesion {
   docenteOriginalId: Id
+  aulaOriginalId?: Id
   franjaOriginal: number
   situacion: EstadoSesion
 }
@@ -45,10 +46,10 @@ const ausente = (aj: AjusteDia, docenteId: Id, franja: number) =>
   aj.ausencias.some((a) => a.docenteId === docenteId && a.franjas.includes(franja))
 
 /** Las clases de ese día del ciclo con los ajustes de la fecha aplicados. No toca el horario base. */
-export const sesionesDelDia = (e: Estado, aj: AjusteDia): SesionDia[] =>
-  sesiones(e)
+export const sesionesDelDia = (e: Estado, aj: AjusteDia): SesionDia[] => {
+  const delDia = sesiones(e)
     .filter((s) => s.dia === aj.diaCiclo)
-    .map((s) => {
+    .map((s): SesionDia => {
       const franja = aj.movimientos.find((m) => m.claseId === s.claseId)?.franja ?? s.franja
       const reemplazo = aj.reemplazos.find((r) => r.claseId === s.claseId)
       // La ausencia se mide contra la franja del horario base: una clase descubierta sigue descubierta aunque se mueva.
@@ -57,8 +58,17 @@ export const sesionesDelDia = (e: Estado, aj: AjusteDia): SesionDia[] =>
         : ausente(aj, s.docenteId, s.franja) ? 'sinDocente'
         : franja !== s.franja ? 'movida'
         : 'normal'
-      return { ...s, franja, franjaOriginal: s.franja, docenteOriginalId: s.docenteId, docenteId: reemplazo?.docenteId ?? s.docenteId, situacion }
+      return { ...s, franja, franjaOriginal: s.franja, docenteOriginalId: s.docenteId, aulaOriginalId: s.aulaId, docenteId: reemplazo?.docenteId ?? s.docenteId, situacion }
     })
+  // Quien reemplaza y tiene aula fija dicta en su aula si está libre a esa hora; si no, la clase sigue en la suya.
+  if (e.colegio.modeloAula === 'grupo' || e.colegio.modeloAula === 'ninguna') return delDia
+  for (const s of delDia) {
+    if (s.situacion !== 'reemplazo') continue
+    const propia = e.docentes.find((d) => d.id === s.docenteId)?.aulaId
+    if (propia && !delDia.some((o) => o !== s && o.aulaId === propia && o.jornada === s.jornada && o.franja === s.franja && o.situacion !== 'grupoAusente')) s.aulaId = propia
+  }
+  return delDia
+}
 
 export const clasesSinDocente = (e: Estado, aj: AjusteDia): SesionDia[] =>
   sesionesDelDia(e, aj).filter((s) => s.situacion === 'sinDocente')

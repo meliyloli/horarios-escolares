@@ -84,7 +84,7 @@ describe('pantalla de incapacidades', () => {
     registrar('d', [3, 4])
     fireEvent.click(screen.getByLabelText(/Con el reemplazo que más convenga/))
     const correo = screen.getByLabelText('Para docentes (correo institucional)') as HTMLTextAreaElement
-    expect(correo.value).toContain('7-1, 3.ª hora, Matemáticas: la cubre Bea Mora.')
+    expect(correo.value).toContain('7-1, 3.ª hora, Matemáticas: la cubre Bea Mora, en aula-a.')
     expect(correo.value).toContain('Falta Ana Ruiz (3.ª y 4.ª hora)')
   })
   it('sin reemplazo pregunta si llegan tarde o salen temprano y arma el mensaje para las familias', () => {
@@ -103,6 +103,20 @@ describe('pantalla de incapacidades', () => {
     expect(correo.value).toMatch(/Yuri Paz: Lengua Castellana con 7-1 pasa de la 2\.ª a la \d\.ª hora/)
     fireEvent.click(screen.getByLabelText('Que salgan temprano'))
     expect(familias.value).toContain('Grupo 7-1: sale al terminar la 4.ª hora.')
+  })
+  it('con las horas de las franjas escritas en Colegio, el aviso a familias dice la hora de entrada', () => {
+    const e = colegio()
+    e.docentes = e.docentes.filter((d) => d.id !== 'v')
+    for (const dia of [1, 3]) for (let f = 1; f <= 6; f++) e.clases.push(cls('y|a|len', dia, f), cls('z|b|ing', dia, f))
+    render(<App inicial={e} />)
+    abrir(/^Colegio$/)
+    fireEvent.click(screen.getAllByRole('button', { name: 'Llenar con un horario típico' })[0])
+    abrir(/Incapacidades/)
+    registrar('d', [3, 4])
+    fireEvent.click(screen.getByLabelText(/Sin reemplazo/))
+    fireEvent.click(screen.getByLabelText('Que lleguen tarde'))
+    const familias = screen.getByLabelText('Para familias (WhatsApp)') as HTMLTextAreaElement
+    expect(familias.value).toContain('Grupo 7-1: ingresa a las 8:50 a. m. (3.ª hora).')
   })
   it('el día sin guardar no se pierde al ir a otra pantalla y avisa que falta guardarlo', () => {
     render(<App inicial={colegio()} />)
