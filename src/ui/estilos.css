@@ -1,3 +1,11 @@
+/* Nunito Sans para leer (tablas, ayudas, controles); Baloo 2 solo para títulos y el nombre de la materia en el bloque. */
+@font-face {
+  font-family: 'Nunito Sans';
+  src: url('../../node_modules/@fontsource-variable/nunito-sans/files/nunito-sans-latin-wght-normal.woff2') format('woff2-variations');
+  font-weight: 200 1000;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 @font-face {
   font-family: 'Baloo 2';
   src: url('../../node_modules/@fontsource-variable/baloo-2/files/baloo-2-latin-wght-normal.woff2') format('woff2-variations');
@@ -17,8 +25,10 @@
   --suave: #4e607f;
   --linea: #c9d8ee;
   --linea-fuerte: #9db4d9;
-  --primario: #ff7a45;
-  --primario-fuerte: #f2622a;
+  /* La acción principal va en el azul noche del menú: el color vivo queda para las materias. */
+  --primario: #14285a;
+  --primario-fuerte: #1f3b80;
+  --letra-titulos: 'Baloo 2', ui-rounded, 'Segoe UI', system-ui, sans-serif;
   --seleccion: #1f5fbf;
   --peligro: #b3261e;
   --peligro-fondo: #ffe9e3;
@@ -29,7 +39,7 @@
   --radio: 12px;
   --radio-chico: 8px;
   --paso: 180ms cubic-bezier(0.16, 1, 0.3, 1);
-  font-family: 'Baloo 2', ui-rounded, 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Nunito Sans', 'Segoe UI', system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.4;
   color: var(--tinta);
@@ -44,6 +54,7 @@
 body { margin: 0; }
 ::selection { background: var(--riel-activo); color: var(--tinta); }
 h1, h2, h3, h4, p { margin: 0; }
+h1, h2, h3, .clase b { font-family: var(--letra-titulos); }
 h2 { font-size: 2rem; font-weight: 800; line-height: 1.1; letter-spacing: -0.01em; text-wrap: balance; }
 h3 { font-size: 1.375rem; font-weight: 700; line-height: 1.2; }
 h4 { font-size: 1.0625rem; font-weight: 700; }
@@ -106,7 +117,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .boton { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 7px 16px; border: 1.5px solid var(--linea-fuerte); border-radius: var(--radio); background: var(--panel); color: var(--tinta); font-weight: 700; font-size: 1rem; line-height: 1.1; cursor: pointer; transition: background var(--paso), border-color var(--paso), transform var(--paso); }
 .boton:hover { background: #f2f7fe; border-color: var(--seleccion); }
 .boton:active { transform: translateY(1px); }
-.boton.primario { background: var(--primario); border-color: var(--primario); }
+.boton.primario { background: var(--primario); border-color: var(--primario); color: #fff; }
 .boton.primario:hover { background: var(--primario-fuerte); border-color: var(--primario-fuerte); }
 .boton.peligro { color: var(--peligro); border-color: #e6b0a8; }
 .boton.peligro:hover { background: var(--peligro-fondo); border-color: var(--peligro); }

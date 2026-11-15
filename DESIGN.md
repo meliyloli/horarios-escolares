@@ -11,8 +11,8 @@ colors:
   suave: "#4e607f"
   linea: "#c9d8ee"
   linea-fuerte: "#9db4d9"
-  primario: "#ff7a45"
-  primario-fuerte: "#f2622a"
+  primario: "#14285a"
+  primario-fuerte: "#1f3b80"
   seleccion: "#1f5fbf"
   peligro: "#b3261e"
   peligro-fondo: "#ffe9e3"
@@ -44,12 +44,12 @@ typography:
     fontWeight: 700
     lineHeight: 1.2
   body:
-    fontFamily: "'Baloo 2', ui-rounded, 'Segoe UI', system-ui, sans-serif"
+    fontFamily: "'Nunito Sans', 'Segoe UI', system-ui, sans-serif"
     fontSize: "1rem"
     fontWeight: 500
     lineHeight: 1.4
   label:
-    fontFamily: "'Baloo 2', ui-rounded, 'Segoe UI', system-ui, sans-serif"
+    fontFamily: "'Nunito Sans', 'Segoe UI', system-ui, sans-serif"
     fontSize: "0.875rem"
     fontWeight: 700
     lineHeight: 1.2
@@ -73,7 +73,7 @@ components:
     height: "42px"
   boton-primario:
     backgroundColor: "{colors.primario}"
-    textColor: "{colors.tinta}"
+    textColor: "#ffffff"
     rounded: "{rounded.normal}"
     padding: "7px 16px"
     height: "42px"
@@ -120,17 +120,17 @@ La usa una docente en su computador, de día, con luz de oficina o de salón: fo
 
 - **Estructura.** Riel `riel` (#14285a) con texto `riel-tinta`; el ítem activo va en `riel-activo` (#ffc93c) con `tinta`. Fondo `fondo` (#eaf2fb), paneles `panel` blancos con borde `linea`.
 - **Texto.** `tinta` (#1b2b4b) para todo; `suave` (#4e607f) para ayudas y secundarios. Nunca gris neutro.
-- **Acción.** `primario` (#ff7a45) solo para la acción principal de cada pantalla, con texto `tinta` (el blanco no alcanza contraste AA sobre este naranja). `seleccion` (#1f5fbf) para foco, selección y destinos al mover una clase.
+- **Acción.** `primario` (#14285a, el azul noche del riel) solo para la acción principal de cada pantalla, con texto blanco. El color vivo queda reservado a las materias: así nunca se confunde un botón con un bloque de clase (antes el naranja del botón era idéntico al de Matemáticas). `seleccion` (#1f5fbf) para foco, selección y destinos al mover una clase.
 - **Estados.** `peligro`, `aviso`, `bien` sobre sus fondos suaves. Un cruce se marca con anillo `peligro` y con ícono, no solo con color.
 - **Áreas.** Paleta de 16 cartulinas (`src/ui/colores.ts`). Cada área guarda su color y el colegio lo puede cambiar.
 
 **The Tinta Automática Rule.** Sobre un color de área el texto es `tinta` o blanco, el que tenga más contraste (`tintaSobre`). Todo color de la paleta debe dar al menos 4,5:1; hay una prueba que lo exige.
 
-**The Un Naranja Rule.** El naranja `primario` aparece una vez por pantalla, en lo que la usuaria vino a hacer.
+**The Una Acción Rule.** El botón `primario` aparece una vez por pantalla, en lo que la usuaria vino a hacer. Ningún control de la interfaz usa un color de la paleta de áreas.
 
 ## Typography
 
-Baloo 2 variable (400 a 800), incluida dentro del archivo: sin conexión se ve igual. Escala fija en rem: 0.875 (etiquetas y fichas), 1 (cuerpo), 1.0625 (guías y navegación), 1.375 (títulos de panel), 2 (título de pantalla). Jerarquía por peso (500 cuerpo, 600 a 700 etiquetas y controles, 800 títulos), no por color. Cifras tabulares en toda la app. Prosa a 72 caracteres como máximo.
+Dos familias, incluidas dentro del archivo (sin conexión se ve igual): **Baloo 2** solo para títulos (pantalla, panel, riel) y el nombre de la materia en el bloque de clase, que es la voz de la cartelera; **Nunito Sans** para todo lo que se lee (cuerpo, tablas, ayudas, controles, mensajes), porque Baloo en texto largo y tablas cansa y se ve infantil para rectoría. Escala fija en rem: 0.875 (etiquetas y fichas), 1 (cuerpo), 1.0625 (guías y navegación), 1.375 (títulos de panel), 2 (título de pantalla). Jerarquía por peso (400 cuerpo, 600 a 700 etiquetas y controles, 800 títulos), no por color. Cifras tabulares en toda la app. Prosa a 72 caracteres como máximo.
 
 ## Layout
 
@@ -151,7 +151,7 @@ Esquinas de 12 px en paneles, botones y bloques de clase; 8 px en campos y eleme
 
 ## Components
 
-- **Botón.** 42 px de alto, borde `linea-fuerte`, peso 700. Variantes: `primario` (naranja), `peligro` (texto rojo), `chico` (34 px), `icono`. Estados: hover (borde `seleccion`), activo (baja 1 px), foco (anillo de 3 px), deshabilitado (55 %).
+- **Botón.** 42 px de alto, borde `linea-fuerte`, peso 700. Variantes: `primario` (azul noche, texto blanco), `peligro` (texto rojo), `chico` (34 px), `icono`. Estados: hover (borde `seleccion`), activo (baja 1 px), foco (anillo de 3 px), deshabilitado (55 %).
 - **Riel.** Botones de navegación con ícono de trazo, en el orden del trabajo y separados por etapas con una línea fina: preparar (Colegio, Áreas, Grupos, Asignación, Media técnica), Horario, día a día (Acompañamiento, Incapacidades) y Colegios y versiones. El activo en amarillo. El contador de cruces va en una marca roja suave. Si no hay respaldo en 7 días, el pie lo dice en una banda ámbar y «Guardar respaldo» se resalta. En pantallas de 768 px de alto el riel se compacta para caber entero.
 - **Bloque de clase.** Color del área, primera línea en negrita (lo principal de esa vista), líneas siguientes en 0.875 rem. Fijada y cruce se marcan con sellos de ícono arriba a la derecha. Seleccionada: se levanta 3 px con doble anillo blanco y azul.
 - **Aviso.** Banda de fondo suave con ícono a la izquierda y acciones a la derecha. Tipos: aviso (ámbar), error, bien, info. Los cruces son avisos tocables que llevan a la clase.
@@ -167,7 +167,7 @@ Esquinas de 12 px en paneles, botones y bloques de clase; 8 px en campos y eleme
 - Do: abrir cada pantalla con una frase guía en palabras del colegio.
 - Do: confirmar antes de borrar y decir qué más se borra con ello.
 - Don't: poner sombras a paneles ni usar degradados.
-- Don't: usar el naranja para algo que no sea la acción principal.
-- Don't: poner texto blanco sobre el naranja primario ni sobre cartulinas claras.
+- Don't: usar colores de la paleta de áreas en botones, fichas o avisos.
+- Don't: poner texto blanco sobre cartulinas claras.
 - Don't: abrir un diálogo para editar; se edita en línea o en el panel de detalle.
-- Don't: introducir una segunda familia de letra.
+- Don't: introducir una tercera familia de letra, ni usar Baloo 2 en tablas o párrafos.

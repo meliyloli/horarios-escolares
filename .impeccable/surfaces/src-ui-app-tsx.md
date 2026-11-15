@@ -13,7 +13,7 @@ Mode: Operate. Audience: una docente que arma el horario en su computador y pref
 
 THESIS: El horario como lo conoce todo el colegio en la pared del salón: bloques grandes de color por materia. Rechaza el tablero administrativo gris con fichas pastel.
 
-OWN-WORLD: Barra lateral azul noche (#14285A, más oscura a pedido de la usuaria) sobre fondo azul cielo muy claro (#EAF2FB); paneles de cartulina blanca sin sombras; cada área es un bloque de color pleno con tinta azul noche (#1B2B4B); acción principal naranja (#FF6B35); esquinas redondeadas 12-14 px; letra Baloo 2 redonda en todo.
+OWN-WORLD: Barra lateral azul noche (#14285A, más oscura a pedido de la usuaria) sobre fondo azul cielo muy claro (#EAF2FB); paneles de cartulina blanca sin sombras; cada área es un bloque de color pleno con tinta azul noche (#1B2B4B); acción principal en el azul noche del riel con texto blanco (el color vivo es solo de las materias); esquinas redondeadas 12-14 px; Baloo 2 redonda en títulos y nombre de materia; Nunito Sans para leer.
 
 STORY: Ve su colegio en colores conocidos, entiende de un vistazo qué falta o choca, y lo corrige con ayuda escrita en palabras del colegio.
 
