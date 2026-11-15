@@ -55,9 +55,17 @@ export const sincronizarClases = (e: Estado): Estado => {
   const vivas = new Set(clases.map((c) => c.id))
   const docentes = new Set(e.docentes.map((d) => d.id))
   const grupos = new Set(e.grupos.map((g) => g.id))
+  // Los turnos de acompañamiento pierden a los docentes borrados y los días que ya no existen en el ciclo.
+  const acompanamiento = e.acompanamiento && {
+    zonas: e.acompanamiento.zonas.map((z) => (z.pareja && !z.pareja.every((id) => !id || docentes.has(id)) ? { ...z, pareja: undefined } : z)),
+    turnos: e.acompanamiento.turnos
+      .filter((t) => t.dia <= dias && e.acompanamiento!.zonas.some((z) => z.id === t.zonaId))
+      .map((t) => (t.docenteIds.every((id) => docentes.has(id)) ? t : { ...t, docenteIds: t.docenteIds.filter((id) => docentes.has(id)) })),
+  }
   return {
     ...e,
     clases,
+    ...(acompanamiento ? { acompanamiento } : {}),
     docentes: e.docentes.map((d) => ({ ...d, noDisponible: d.noDisponible.filter((k) => Number(k.split('-')[0]) <= dias) })),
     // Los días de incapacidad pierden lo que apuntaba a algo borrado; si su día del ciclo ya no existe, se quitan.
     ajustes: e.ajustes

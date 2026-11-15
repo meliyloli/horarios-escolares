@@ -243,6 +243,9 @@ a.boton { text-decoration: none; }
 .tabla-versiones td { white-space: nowrap; }
 .tabla-versiones td, .tabla-versiones th { padding-left: 8px; padding-right: 8px; }
 .aviso-fijo { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); z-index: 50; width: min(760px, calc(100% - 32px)); box-shadow: 0 8px 24px rgba(27, 43, 75, 0.18); }
+.tabla-turnos th[scope='row'] { text-align: left; font-weight: 700; background: transparent; min-width: 150px; }
+.tabla-turnos th[scope='row'] .detalle { display: block; font-weight: 500; font-size: 0.875rem; color: var(--suave); }
+.tabla-turnos select { min-width: 9rem; }
 .lista-repetidos { margin: 6px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
 .lista-repetidos li { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .lista-borradores { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }

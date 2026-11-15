@@ -23,6 +23,7 @@ const TRAZOS = {
   flecha: 'M5 12h14M13 6l6 6-6 6',
   versiones: 'M12 3l9 5-9 5-9-5zM3 12.5l9 5 9-5M3 17l9 5 9-5',
   lapiz: 'M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z',
+  zonas: 'M12 21s7-5.6 7-11a7 7 0 0 0-14 0c0 5.4 7 11 7 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
 } as const
 
 export type NombreIcono = keyof typeof TRAZOS

@@ -21,10 +21,11 @@ import { Asignacion } from './pantallas/Asignacion'
 import { Colegio } from './pantallas/Colegio'
 import { Datos } from './pantallas/Datos'
 import { Horario } from './pantallas/Horario'
+import { Acompanamiento } from './pantallas/Acompanamiento'
 import { Incapacidades } from './pantallas/Incapacidades'
 import { Versiones } from './pantallas/Versiones'
 
-export type Pantalla = 'versiones' | 'colegio' | 'areas' | 'datos' | 'asignacion' | 'horario' | 'incapacidades'
+export type Pantalla = 'versiones' | 'acompanamiento' | 'colegio' | 'areas' | 'datos' | 'asignacion' | 'horario' | 'incapacidades'
 
 const PANTALLAS: [Pantalla, string, NombreIcono][] = [
   ['versiones', 'Colegios y versiones', 'versiones'],
@@ -33,6 +34,7 @@ const PANTALLAS: [Pantalla, string, NombreIcono][] = [
   ['datos', 'Grupos, docentes y aulas', 'grupos'],
   ['asignacion', 'Asignación académica', 'asignacion'],
   ['horario', 'Horario', 'horario'],
+  ['acompanamiento', 'Acompañamiento', 'zonas'],
   ['incapacidades', 'Incapacidades', 'incapacidades'],
 ]
 
@@ -195,6 +197,7 @@ function Marco({ exigirCodigo }: { exigirCodigo: boolean }) {
         )}
         {pantalla === 'versiones' && <Versiones />}
         {pantalla === 'colegio' && <Colegio />}
+        {pantalla === 'acompanamiento' && <Acompanamiento alIr={ir} />}
         {pantalla === 'areas' && <Areas />}
         {pantalla === 'datos' && <Datos />}
         {pantalla === 'asignacion' && <Asignacion />}

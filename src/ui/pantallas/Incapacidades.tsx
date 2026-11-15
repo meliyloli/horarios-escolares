@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { turnosSinCubrir } from '../../dominio/acompanamiento'
 import {
   ajusteDe, ajusteVacio, aplicarReorganizacion, candidatosReemplazo, diaCicloDeFecha, guardarAjuste, impactoAjuste,
   normalizarAjuste, opcionesReorganizar, puedeFaltarGrupo, registroHorasCubiertas, sesionesDelDia, type Candidato, type OpcionReorganizar,
@@ -167,6 +168,7 @@ export function Incapacidades({ alIr, alVerDia, borrador, alCambiarBorrador }: P
     const afectadas = delDia.filter((s) => s.situacion === 'sinDocente' || s.situacion === 'reemplazo').sort((a, b) => a.franjaOriginal - b.franjaOriginal)
     const gruposConHuecos = [...new Set(delDia.filter((s) => s.situacion === 'sinDocente').map((s) => s.grupoId))]
     const impacto = impactoAjuste(estado, aj)
+    const sinCubrir = turnosSinCubrir(estado, aj)
     const guardado = ajusteDe(estado, aj.fecha)
     const clasesDeGrupo = (grupoId: Id) => new Set(delDia.filter((s) => s.grupoId === grupoId).map((s) => s.claseId))
     const sinMovimientosDe = (grupoId: Id): AjusteDia => ({ ...aj, movimientos: aj.movimientos.filter((m) => !clasesDeGrupo(grupoId).has(m.claseId)) })
@@ -239,6 +241,20 @@ export function Incapacidades({ alIr, alVerDia, borrador, alCambiarBorrador }: P
                 </tbody>
               </table>
             </div>
+          </>
+        )}
+
+        {sinCubrir.length > 0 && (
+          <>
+            <h4>Acompañamiento en descansos</h4>
+            <ul className="pila" style={{ margin: 0, paddingLeft: 18, gap: 4 }}>
+              {sinCubrir.map((t) => (
+                <li key={`${t.zonaId}-${t.descanso}-${t.ausente}`}>
+                  <b>{estado.acompanamiento?.zonas.find((z) => z.id === t.zonaId)?.nombre}</b>, {t.descanso === 1 ? 'primer' : 'segundo'} descanso: le tocaba a {nombre(t.ausente)}.{' '}
+                  {t.sugerido ? <>Puede cubrirlo <b>{nombre(t.sugerido)}</b>, que está libre y tiene pocos turnos.</> : <span className="suave">Nadie más está libre en ese descanso.</span>}
+                </li>
+              ))}
+            </ul>
           </>
         )}
 

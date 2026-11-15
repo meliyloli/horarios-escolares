@@ -15,7 +15,19 @@ La primera vez muestra un colegio de ejemplo. Cuando quieras empezar con el tuyo
 3. **Grupos, docentes y aulas.** Lo que tiene el colegio. En cada docente: sus horas extra (si tiene) y el apartado «Disponibilidad» para decir desde qué franja entra, hasta cuál se queda, qué días no viene o franjas sueltas. Un docente puede tener jornada «Mañana y tarde (horario intermedio)»: dicta a grupos de las dos jornadas, incluso el mismo día (la franja 1 de la mañana y la de la tarde son horas distintas), y su disponibilidad tiene una cuadrícula para cada jornada. En la **asignación** de un docente de horario intermedio, cada materia con su grupo se marca **en la mañana** o **en la tarde**: las de la tarde van en las franjas de la tarde aunque el grupo sea de la mañana (contrajornada), y ese grupo se ve entonces con una tabla de la mañana y otra de la tarde.
 4. **Asignación académica.** Qué horas dicta cada docente a cada grupo. «Por docente» muestra su carga, permite agregarle materias o grupos en la última fila y cambiarle el nombre («Cambiar nombre»). «Por grupo» muestra cada materia del grupo con sus docentes, si está completa, si le faltan o le sobran horas, y permite asignar ahí lo que falta. La app avisa cuando dos docentes comparten una materia en un grupo (y si sus horas suman la intensidad) y cuando un grupo pasa de 30 horas por semana en bachillerato o de 25 en primaria. También se puede importar de un Word o PDF.
 5. **Horario.** «Generar horario». Luego puedes mover clases, fijarlas, imprimir, descargar el PDF y exportar a Excel.
-6. **Incapacidades.** El día que alguien falta: registrar la ausencia, elegir reemplazos o reorganizar el día.
+6. **Acompañamiento.** Las zonas que se cuidan en los descansos y quién las acompaña cada día (ver abajo).
+7. **Incapacidades.** El día que alguien falta: registrar la ausencia, elegir reemplazos o reorganizar el día. Si esa persona acompañaba una zona en un descanso, la app lo avisa y sugiere quién puede cubrirla.
+
+## Acompañamiento en descansos
+
+En **Acompañamiento** se arman las zonas del colegio (patio, cancha, baños, tienda, pasillos…); «Agregar zonas comunes» pone las más usuales para empezar. En cada zona se elige:
+
+- **Docentes por turno** (1 a 4) y en qué **descansos** se cuida (1.º, entre las franjas 2 y 3; 2.º, entre la 4 y la 5).
+- **Jornada**, si el colegio tiene mañana y tarde.
+- **Álgida**: zonas más pesadas (baños, tienda). Quien la acompaña un día no la repite el día anterior ni el siguiente.
+- **Pareja fija**: dos docentes que se reparten esa zona solos durante todo el ciclo. Con 1 docente por turno se dividen los días completos (quien la cubre un día la cubre en los dos descansos).
+
+«Repartir turnos» llena la tabla del ciclo. Solo elige a quien ese día tiene clase en esa jornada y está disponible alrededor del descanso, nunca pone a alguien en dos zonas a la vez, y reparte **en proporción al espacio libre**: quien tiene menos horas de clase acompaña más, y quien está muy cargado, menos. La tabla «Turnos por docente» muestra cuántos tiene cada uno y cuántos le tocarían en proporción. Cada turno se puede cambiar a mano; la app avisa si algo no cuadra (una zona sin cubrir, alguien que ese día no está, una álgida repetida). «Imprimir o PDF» saca la tabla para la cartelera.
 
 ## Subir un Word o PDF
 

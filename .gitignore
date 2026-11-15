@@ -4,3 +4,5 @@ dist/
 .tools/
 Horarios.html
 .superpowers/
+capturas/
+tsconfig.tsbuildinfo

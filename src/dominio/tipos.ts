@@ -115,6 +115,31 @@ export interface Borrador {
   estado: Estado
 }
 
+/** 1: el descanso después de la franja 2; 2: el que va después de la franja 4. */
+export type Descanso = 1 | 2
+
+/** Un lugar del colegio que algún docente acompaña durante los descansos. */
+export interface Zona {
+  id: Id
+  nombre: string
+  /** Docentes que se necesitan en cada turno. */
+  personas: number
+  descansos: Descanso[]
+  jornada: Jornada
+  /** Zona difícil: quien la cuida un día no la repite el día anterior ni el siguiente. */
+  algida?: boolean
+  /** Pareja fija: solo estos dos docentes la cuidan durante el ciclo (se turnan, o van juntos si la zona pide dos). '' = aún sin elegir. */
+  pareja?: [Id, Id]
+}
+
+/** Quién acompaña una zona en un descanso de un día del ciclo. */
+export interface Turno {
+  zonaId: Id
+  dia: number
+  descanso: Descanso
+  docenteIds: Id[]
+}
+
 export interface Estado {
   version: 1
   colegio: Colegio
@@ -132,6 +157,8 @@ export interface Estado {
   /** Las demás versiones del horario de este colegio. */
   borradores?: Borrador[]
   ultimoRespaldo?: string
+  /** Zonas de acompañamiento en los descansos y sus turnos. */
+  acompanamiento?: { zonas: Zona[]; turnos: Turno[] }
   /** Marca de la última vez que una pestaña guardó estos datos en el navegador (para reconocer ecos entre pestañas). */
   guardadoEn?: number
 }
