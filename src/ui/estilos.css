@@ -123,6 +123,16 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .boton.peligro:hover { background: var(--peligro-fondo); border-color: var(--peligro); }
 .boton.chico { min-height: 34px; padding: 4px 11px; font-size: 0.9375rem; border-radius: var(--radio-chico); }
 .boton.icono { padding: 4px; min-width: 34px; }
+/* Borrar en cada fila de una tabla: discreto hasta que se apunta; el rojo aparece al acercarse, no en 16 filas a la vez. */
+.boton.icono.peligro { border-color: transparent; background: transparent; color: var(--suave); }
+.boton.icono.peligro:hover, .boton.icono.peligro:focus-visible { color: var(--peligro); background: var(--peligro-fondo); border-color: var(--peligro-fondo); }
+/* Botones que van juntos (qué exportar + Imprimir, PDF, Excel): un solo bloque. */
+.grupo-botones { display: inline-flex; align-items: stretch; }
+.grupo-botones > * { border-radius: 0; margin-left: -1.5px; }
+.grupo-botones > *:first-child { border-radius: var(--radio) 0 0 var(--radio); margin-left: 0; }
+.grupo-botones > *:last-child { border-radius: 0 var(--radio) var(--radio) 0; }
+.grupo-botones > *:hover, .grupo-botones > *:focus-visible { position: relative; z-index: 1; }
+.grupo-botones select { min-height: 42px; }
 .boton:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 .boton svg { flex: none; }
 
@@ -145,10 +155,11 @@ label.marca { display: flex; align-items: center; gap: 10px; font-weight: 600; c
 .opcion b { display: block; }
 .opcion span { font-size: 0.9375rem; color: var(--suave); }
 
-.pestanas { display: flex; flex-wrap: wrap; gap: 6px; }
-.pestanas button { padding: 8px 16px; border: 0; border-radius: var(--radio); background: transparent; color: var(--suave); font-weight: 700; font-size: 1.0625rem; cursor: pointer; transition: background var(--paso), color var(--paso); }
-.pestanas button:hover { background: #d9e6f8; color: var(--tinta); }
-.pestanas button[aria-selected='true'] { background: var(--tinta); color: #fff; }
+/* Pestañas como selector segmentado: elegir una vista no debe verse como el botón de la acción principal. */
+.pestanas { display: inline-flex; width: fit-content; max-width: 100%; flex-wrap: wrap; gap: 2px; padding: 4px; border-radius: var(--radio); background: #dbe6f6; }
+.pestanas button { min-height: 36px; padding: 6px 14px; border: 0; border-radius: var(--radio-chico); background: transparent; color: var(--suave); font-weight: 700; font-size: 1rem; cursor: pointer; transition: background var(--paso), color var(--paso), box-shadow var(--paso); }
+.pestanas button:hover { background: #ffffff99; color: var(--tinta); }
+.pestanas button[aria-selected='true'] { background: #fff; color: var(--tinta); box-shadow: 0 1px 3px #14285a2e; }
 
 /* ---------- Tablas ---------- */
 .tabla-caja { overflow-x: auto; border: 1.5px solid var(--linea); border-radius: var(--radio); background: var(--panel); }
@@ -158,6 +169,9 @@ table.datos td { padding: 6px 10px; border-bottom: 1px solid #e3ecf8; vertical-a
 table.datos tr:last-child td { border-bottom: 0; }
 table.datos td.num, table.datos th.num { text-align: center; }
 table.datos input[type='text'] { width: 100%; min-width: 9em; }
+/* En tablas llenas de campos, bordes suaves: se marcan al pasar o al editar. */
+table.datos input:not([type='checkbox']):not([type='radio']):not([type='color']), table.datos select { border-color: var(--linea); }
+table.datos input:not([type='checkbox']):not([type='radio']):not([type='color']):hover, table.datos select:hover { border-color: var(--linea-fuerte); }
 table.datos tfoot td { font-weight: 700; background: #f6f9fe; border-top: 1.5px solid var(--linea); }
 
 .lista { display: flex; flex-direction: column; gap: 4px; }
@@ -253,6 +267,8 @@ button.celda { padding: 0; text-align: left; background: transparent; border: 0;
 
 .subpanel { display: flex; flex-direction: column; gap: 12px; padding: 16px 18px; border: 1.5px solid var(--linea); border-radius: var(--radio); background: #f6f9fe; }
 .borradores { padding: 6px 8px 6px 14px; gap: 8px; }
+.borradores .boton { border-color: transparent; background: transparent; color: var(--seleccion); }
+.borradores .boton:hover { background: #e3edfc; border-color: transparent; }
 a.boton { text-decoration: none; }
 .tabla-versiones th[scope='row'] { text-align: left; font-weight: 700; white-space: nowrap; background: transparent; }
 .tabla-versiones tr[aria-current] { background: #f2fbf5; }

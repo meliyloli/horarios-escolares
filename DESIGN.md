@@ -152,6 +152,11 @@ Esquinas de 12 px en paneles, botones y bloques de clase; 8 px en campos y eleme
 ## Components
 
 - **Botón.** 42 px de alto, borde `linea-fuerte`, peso 700. Variantes: `primario` (azul noche, texto blanco), `peligro` (texto rojo), `chico` (34 px), `icono`. Estados: hover (borde `seleccion`), activo (baja 1 px), foco (anillo de 3 px), deshabilitado (55 %).
+- **Pestañas.** Selector segmentado: fondo azul claro y la pestaña elegida en blanco con sombra leve. Nunca en azul noche, para no confundirse con el botón principal.
+- **Borrar en filas de tabla.** Ícono de papelera gris sin borde; se vuelve rojo al apuntarlo o enfocarlo. Los botones de borrar con texto («Borrar docente») siguen en rojo.
+- **Grupo de botones.** Acciones que van juntas (qué exportar, Imprimir, PDF, Excel) se unen en un solo bloque.
+- **Acción principal según el momento.** «Generar horario» es principal mientras no hay horario; con horario hecho, «Generar de nuevo» pasa a secundario porque borra lo hecho a mano.
+- **Campos en tablas.** Borde suave (`linea`) que se marca al pasar o al editar.
 - **Riel.** Botones de navegación con ícono de trazo, en el orden del trabajo y separados por etapas con una línea fina: preparar (Colegio, Áreas, Grupos, Asignación, Media técnica), Horario, día a día (Acompañamiento, Incapacidades) y Colegios y versiones. El activo en amarillo. El contador de cruces va en una marca roja suave. Si no hay respaldo en 7 días, el pie lo dice en una banda ámbar y «Guardar respaldo» se resalta. En pantallas de 768 px de alto el riel se compacta para caber entero.
 - **Bloque de clase.** Color del área, primera línea en negrita (lo principal de esa vista), líneas siguientes en 0.875 rem. Fijada y cruce se marcan con sellos de ícono arriba a la derecha. Seleccionada: se levanta 3 px con doble anillo blanco y azul.
 - **Aviso.** Banda de fondo suave con ícono a la izquierda y acciones a la derecha. Tipos: aviso (ámbar), error, bien, info. Los cruces son avisos tocables que llevan a la clase.

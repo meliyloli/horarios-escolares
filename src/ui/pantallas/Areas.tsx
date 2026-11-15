@@ -32,13 +32,11 @@ export function Areas() {
     <>
       <header className="cabecera">
         <h2>Áreas e intensidad horaria</h2>
-        {!leyendoIntensidad && estado.asignaciones.length > 0 && <button className="boton" onClick={() => setLeyendoIntensidad(true)}>Leer intensidad desde la asignación</button>}
         {!importando && <button className="boton" onClick={() => setImportando(true)}><Icono nombre="subir" />Importar Word o PDF</button>}
         <button className="boton primario" onClick={agregar}><Icono nombre="mas" />Agregar área</button>
         <p className="guia">Las áreas del plan de estudios, cuáles son afines entre sí y cuántas horas por semana tiene cada una en cada grado. La media técnica va aparte, en su propio apartado.</p>
       </header>
       {importando && <Importar alCerrar={() => setImportando(false)} />}
-      {leyendoIntensidad && <IntensidadDesdeAsignacion alCerrar={() => setLeyendoIntensidad(false)} />}
 
       {areas.length === 0 ? (
         <Vacio titulo="Todavía no hay áreas">
@@ -121,7 +119,11 @@ export function Areas() {
           </section>
 
           <section className="pila">
-            <h3>Intensidad horaria: horas por semana en cada grado</h3>
+            <div className="fila">
+              <h3>Intensidad horaria: horas por semana en cada grado</h3>
+              {!leyendoIntensidad && estado.asignaciones.length > 0 && <button className="boton chico empuja" onClick={() => setLeyendoIntensidad(true)}>Leer intensidad desde la asignación</button>}
+            </div>
+            {leyendoIntensidad && <IntensidadDesdeAsignacion alCerrar={() => setLeyendoIntensidad(false)} />}
             <p className="suave">
               La app comprueba que cada grupo reciba exactamente estas horas. El total por semana no puede pasar de 25 en primaria ni de 30 en bachillerato. En ciclo de 10 días se cuentan dobles y se aceptan medias horas
               (1,5 por semana son 3 en el ciclo).

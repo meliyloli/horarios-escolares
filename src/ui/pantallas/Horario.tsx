@@ -251,20 +251,23 @@ export function Horario({ alIr, fecha, alCambiarFecha, grupoInicial }: { alIr: (
                 <option value="tarde">Solo la tarde</option>
               </select>
             )}
-            {vista !== 'general' && (
-              <select aria-label="Qué imprimir o exportar" value={alcance} onChange={(ev) => setAlcance(ev.target.value as typeof alcance)}>
-                <option value="uno">Solo {opciones[vista].find((o) => o.id === idDe(vista))?.nombre}</option>
-                <option value="todos">{TODOS[vista]}, uno por hoja</option>
-                <option value="tabla">{TODOS[vista]} {vista === 'aula' ? 'juntas' : 'juntos'} en una tabla</option>
-              </select>
-            )}
-            <button className="boton" onClick={imprimir}><Icono nombre="imprimir" />Imprimir</button>
-            <button className="boton" title="Descarga un PDF a color, listo para mandar por WhatsApp o correo" onClick={exportarPdf}><Icono nombre="bajar" />PDF</button>
-            <button className="boton" onClick={exportarExcel}><Icono nombre="excel" />Excel</button>
+            <div className="grupo-botones" role="group" aria-label="Imprimir o exportar">
+              {vista !== 'general' && (
+                <select aria-label="Qué imprimir o exportar" value={alcance} onChange={(ev) => setAlcance(ev.target.value as typeof alcance)}>
+                  <option value="uno">Solo {opciones[vista].find((o) => o.id === idDe(vista))?.nombre}</option>
+                  <option value="todos">{TODOS[vista]}, uno por hoja</option>
+                  <option value="tabla">{TODOS[vista]} {vista === 'aula' ? 'juntas' : 'juntos'} en una tabla</option>
+                </select>
+              )}
+              <button className="boton" onClick={imprimir}><Icono nombre="imprimir" />Imprimir</button>
+              <button className="boton" title="Descarga un PDF a color, listo para mandar por WhatsApp o correo" onClick={exportarPdf}><Icono nombre="bajar" />PDF</button>
+              <button className="boton" onClick={exportarExcel}><Icono nombre="excel" />Excel</button>
+            </div>
           </>
         )}
         {estado.asignaciones.length > 0 && (
-          <button className="boton primario" onClick={generar} disabled={generando}>
+          // Con un horario hecho, generar de nuevo borra los cambios a mano: deja de ser la acción principal.
+          <button className={`boton ${hayHorario ? '' : 'primario'}`} onClick={generar} disabled={generando}>
             <Icono nombre="varita" />{generando ? 'Generando…' : hayHorario ? 'Generar de nuevo' : 'Generar horario'}
           </button>
         )}
